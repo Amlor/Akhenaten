@@ -1,0 +1,40 @@
+name: Akhenaten Build Windows x86
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+
+jobs:
+  windows:
+    name: run on windows
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - uses: ilammy/msvc-dev-cmd@v1.12.1
+        with:
+          arch: win32
+      - name: update-workspace
+        shell: pwsh
+        run: |
+          mkdir build
+          mkdir bin_x86
+      - name: build-project
+        run: |
+          cd build
+          cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo ..
+          cd ..
+          cmake --build ./build --target akhenaten --config RelWithDebInfo
+          copy ./build/RelWithDebInfo/akhenaten.exe ./bin_x86/akhenaten.exe
+          copy ./build/RelWithDebInfo/akhenaten.pdb ./bin_x86/akhenaten.pdb
+      - name: create-package
+        shell: pwsh
+        run: |
+          Compress-Archive -Path bin_x86/* -Destination windows_build.zip
+      - uses: actions/upload-artifact@v3
+        with:
+          name: win32_build
+          path: bin_x86
