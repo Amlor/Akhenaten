@@ -82,9 +82,7 @@ if(MINGW AND DEFINED SDL_EXT_DIR)
 endif()
 
 SET(SDL3_SEARCH_PATHS
-	~/Library/Frameworks
 	~/Library/Frameworks/SDL3.xcframework/macos-arm64_x86_64/
-	/Library/Frameworks
 	/Library/Frameworks/SDL3.xcframework/macos-arm64_x86_64/
 	/usr/local
 	/usr
@@ -193,7 +191,6 @@ if(SDL3_INCLUDE_DIR AND EXISTS "${SDL3_INCLUDE_DIR}/SDL_version.h")
     unset(SDL3_VERSION_MINOR)
     unset(SDL3_VERSION_PATCH)
 endif()
-
 
 INCLUDE(FindPackageHandleStandardArgs)
 

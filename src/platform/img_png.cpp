@@ -216,7 +216,7 @@ int IMG_isPNG(SDL_IOStream *src)
 
     start = SDL_TellIO(src);
     is_PNG = 0;
-    if ( SDL_ReadIO(src, magic, 1, sizeof(magic)) == sizeof(magic) ) {
+    if ( SDL_ReadIO(src, magic, sizeof(magic)) == sizeof(magic) ) {
         if ( magic[0] == 0x89 &&
              magic[1] == 'P' &&
              magic[2] == 'N' &&
@@ -234,7 +234,7 @@ static void png_read_data(png_structp ctx, png_bytep area, png_size_t size)
     SDL_IOStream *src;
 
     src = (SDL_IOStream *)lib.png_get_io_ptr(ctx);
-    SDL_ReadIO(src, area, size, 1);
+    SDL_ReadIO(src, area, size);
 }
 SDL_Surface *IMG_LoadPNG_RW(SDL_IOStream *src)
 {
