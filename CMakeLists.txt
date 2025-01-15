@@ -80,7 +80,7 @@ elseif(WIN_EMSCRIPTEN)
         message(FATAL_ERROR "Please define EMSDK to Emscripten SDK in system path!")
     endif()
     message("Emscripten SDK: ${EMSDK}")
-    set(USE_FLAGS "-s USE_SDL=2 -s USE_SDL_MIXER=2 -s SDL2_MIXER_FORMATS=[\"mp3\"] -s USE_MPG123=1")
+    set(USE_FLAGS "-s USE_SDL=3 -s USE_SDL_MIXER=2 -s SDL2_MIXER_FORMATS=[\"mp3\"] -s USE_MPG123=1")
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${USE_FLAGS}")
     set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${USE_FLAGS}")
     set(CMAKE_CXX_FLAGS "-Wno-c++11-narrowing -fno-exceptions -Wno-varargs -Wno-constant-conversion -Wno-non-pod-varargs --std=c++17 ${CMAKE_CXX_FLAGS} ${USE_FLAGS}")
@@ -102,29 +102,29 @@ else()
     SET(GAME_BUILD_TYPE "Debug")
 endif()
 
-set(SDL2_VERSION "2.30.11")
+set(SDL3_VERSION "3.1.8")
 set(SDL2_MIXER_VERSION "2.8.0")
 
-set(SDL2_EXTRACT_PATH "${CMAKE_CURRENT_SOURCE_DIR}/ext/SDL2")
+set(SDL2_EXTRACT_PATH "${CMAKE_CURRENT_SOURCE_DIR}/ext/SDL3")
 set(TRACY_EXT_PATH "${CMAKE_CURRENT_SOURCE_DIR}/ext/tracy")
 
 #
 # Dependencies and libs
 #
 if (MSVC OR WIN_EMSCRIPTEN)
-    set(SDL_EXT_DIR ${CMAKE_CURRENT_SOURCE_DIR}/ext/SDL2)
-    set(SDL2_CHECK_PATH "${SDL2_EXTRACT_PATH}/include/SDL.h")
-    if(NOT EXISTS "${SDL2_CHECK_PATH}")
-        set(SDL2_DEP_FILENAME "SDL2-devel-${SDL2_VERSION}-VC.zip")
-        set(SDL2_UNPACK_DIR "SDL2-${SDL2_VERSION}")
-        set(SDL2_DOWNLOAD_URL "http://libsdl.org/release/${SDL2_DEP_FILENAME}")
-        set(SDL2_TMP_ZIP_PATH "${CMAKE_BINARY_DIR}/tmp/${SDL2_DEP_FILENAME}")
-        message("Download SDL2 to ${SDL2_TMP_ZIP_PATH}")
-        file(DOWNLOAD "${SDL2_DOWNLOAD_URL}" "${SDL2_TMP_ZIP_PATH}")
-        message("Unpack SDL2 to ${SDL2_EXTRACT_PATH}")
-        execute_process(COMMAND ${CMAKE_COMMAND} -E tar xzf ${SDL2_TMP_ZIP_PATH} WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/tmp)
-        file(COPY ${CMAKE_BINARY_DIR}/tmp/${SDL2_UNPACK_DIR}/include DESTINATION ${SDL2_EXTRACT_PATH})
-        file(COPY ${CMAKE_BINARY_DIR}/tmp/${SDL2_UNPACK_DIR}/lib DESTINATION ${SDL2_EXTRACT_PATH})
+    set(SDL_EXT_DIR ${CMAKE_CURRENT_SOURCE_DIR}/ext/SDL3)
+    set(SDL3_CHECK_PATH "${SDL3_EXTRACT_PATH}/include/SDL.h")
+    if(NOT EXISTS "${SDL3_CHECK_PATH}")
+        set(SDL3_DEP_FILENAME "SDL3-devel-${SDL3_VERSION}-VC.zip")
+        set(SDL3_UNPACK_DIR "SDL3-${SDL3_VERSION}")
+        set(SDL3_DOWNLOAD_URL "http://libsdl.org/release/${SDL3_DEP_FILENAME}")
+        set(SDL3_TMP_ZIP_PATH "${CMAKE_BINARY_DIR}/tmp/${SDL3_DEP_FILENAME}")
+        message("Download SDL3 to ${SDL3_TMP_ZIP_PATH}")
+        file(DOWNLOAD "${SDL3_DOWNLOAD_URL}" "${SDL3_TMP_ZIP_PATH}")
+        message("Unpack SDL3 to ${SDL3_EXTRACT_PATH}")
+        execute_process(COMMAND ${CMAKE_COMMAND} -E tar xzf ${SDL3_TMP_ZIP_PATH} WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/tmp)
+        file(COPY ${CMAKE_BINARY_DIR}/tmp/${SDL3_UNPACK_DIR}/include DESTINATION ${SDL3_EXTRACT_PATH})
+        file(COPY ${CMAKE_BINARY_DIR}/tmp/${SDL3_UNPACK_DIR}/lib DESTINATION ${SDL3_EXTRACT_PATH})
     endif()
 
     set(SDL2_MIXER_DEP_FILENAME "SDL2_mixer-devel-${SDL2_MIXER_VERSION}-VC.zip")
@@ -141,8 +141,8 @@ if (MSVC OR WIN_EMSCRIPTEN)
         file(COPY ${CMAKE_BINARY_DIR}/tmp/${SDL2_MIXER_UNPACK_DIR}/lib DESTINATION ${SDL2_EXTRACT_PATH})
     endif()
 
-    file(GLOB SDL2_DLL_PUBLIC_DLL "${SDL2_EXTRACT_PATH}/lib/${GAME_PROCESSOR_ARCH}/*.dll")
-    file(COPY ${SDL2_DLL_PUBLIC_DLL} DESTINATION ${GAME_WORKING_DIRECTORY})
+    file(GLOB SDL3_DLL_PUBLIC_DLL "${SDL3_EXTRACT_PATH}/lib/${GAME_PROCESSOR_ARCH}/*.dll")
+    file(COPY ${SDL3_DLL_PUBLIC_DLL} DESTINATION ${GAME_WORKING_DIRECTORY})
 
     set(SDL_FFMPEG_DIR ${CMAKE_CURRENT_SOURCE_DIR}/ext/ffmpeg)
     file(GLOB FFMPEG_PUBLIC_DLL "${SDL_FFMPEG_DIR}/bin/*.dll")
@@ -160,18 +160,18 @@ if (EXISTS "${TRACY_CHECK_PATH}")
 endif()
 
 if (CMAKE_BUILD_DEPENDENCIES STREQUAL "android")
-    set(SDL2_SRC_CHECK_PATH "${SDL2_EXTRACT_PATH}/SDL2-${SDL2_VERSION}/include/SDL.h")
-    set(SDL2_SRC_DOWNLOAD_URL "https://github.com/libsdl-org/SDL/releases/download/release-${SDL2_VERSION}/SDL2-${SDL2_VERSION}.zip")
-    set(SDL2_SRC_DEP_FILENAME "SDL2-${SDL2_VERSION}.zip")
-    set(SDL2_SRC_UNPACK_DIR "SDL2-${SDL2_VERSION}")
-    set(SDL2_SRC_TMP_ZIP_PATH "${CMAKE_BINARY_DIR}/tmp/${SDL2_SRC_DEP_FILENAME}")
-    set(SDL2_SRC_EXTRACT_PATH "${CMAKE_CURRENT_SOURCE_DIR}/ext/SDL2")
-    if (NOT EXISTS "${SDL2_SRC_CHECK_PATH}")
-        message("Download SDL2 sources to ${SDL2_SRC_TMP_ZIP_PATH}")
-        file(DOWNLOAD "${SDL2_SRC_DOWNLOAD_URL}" "${SDL2_SRC_TMP_ZIP_PATH}")
-        message("Unpack SDL2 sources to ${SDL2_SRC_EXTRACT_PATH}")
-        execute_process(COMMAND ${CMAKE_COMMAND} -E tar xzf ${SDL2_SRC_TMP_ZIP_PATH} WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/tmp)
-        file(COPY ${CMAKE_BINARY_DIR}/tmp/${SDL2_SRC_UNPACK_DIR} DESTINATION ${SDL2_SRC_EXTRACT_PATH})
+    set(SDL3_SRC_CHECK_PATH "${SDL3_EXTRACT_PATH}/SDL3-${SDL3_VERSION}/include/SDL.h")
+    set(SDL3_SRC_DOWNLOAD_URL "https://github.com/libsdl-org/SDL/releases/download/release-${SDL3_VERSION}/SDL3-${SDL3_VERSION}.zip")
+    set(SDL3_SRC_DEP_FILENAME "SDL3-${SDL3_VERSION}.zip")
+    set(SDL3_SRC_UNPACK_DIR "SDL3-${SDL3_VERSION}")
+    set(SDL3_SRC_TMP_ZIP_PATH "${CMAKE_BINARY_DIR}/tmp/${SDL3_SRC_DEP_FILENAME}")
+    set(SDL3_SRC_EXTRACT_PATH "${CMAKE_CURRENT_SOURCE_DIR}/ext/SDL3")
+    if (NOT EXISTS "${SDL3_SRC_CHECK_PATH}")
+        message("Download SDL3 sources to ${SDL3_SRC_TMP_ZIP_PATH}")
+        file(DOWNLOAD "${SDL3_SRC_DOWNLOAD_URL}" "${SDL3_SRC_TMP_ZIP_PATH}")
+        message("Unpack SDL3 sources to ${SDL3_SRC_EXTRACT_PATH}")
+        execute_process(COMMAND ${CMAKE_COMMAND} -E tar xzf ${SDL3_SRC_TMP_ZIP_PATH} WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/tmp)
+        file(COPY ${CMAKE_BINARY_DIR}/tmp/${SDL3_SRC_UNPACK_DIR} DESTINATION ${SDL3_SRC_EXTRACT_PATH})
     endif()
 
     set(SDL2_MIXER_SRC_CHECK_PATH "${SDL2_EXTRACT_PATH}/SDL2_mixer-${SDL2_MIXER_VERSION}/mixer.h")
@@ -262,7 +262,7 @@ if (PLATFORM_ANDROID)
     set(PLATFORM_FILES ${PLATFORM_FILES} ${ANDROID_BACKEND_FILES})
 
     set(CMAKE_CXX_FLAGS "-Wno-format-security ${CMAKE_CXX_FLAGS}")
-    # set(SDL2_ANDROID_HOOK ${SDL_EXT_DIR}/src/main/android/SDL_android_main.c)
+    # set(SDL3_ANDROID_HOOK ${SDL_EXT_DIR}/src/main/android/SDL_android_main.c)
 endif()
 
 # Find revision ID and hash of the sourcetree
@@ -424,23 +424,23 @@ if (!APPLE)
 endif()
 
 if (PLATFORM_ANDROID)
-    find_package(SDL2 REQUIRED CONFIG)
-    set(SDL2_LIBRARY SDL2::SDL2)
+    find_package(SDL3 REQUIRED CONFIG)
+    set(SDL3_LIBRARY SDL3::SDL3)
     set(SDL2_MIXER_LIBRARY SDL2::SDL2_mixer)
 elseif (WIN_EMSCRIPTEN)
-    set(SDL2_LIBRARY "SDL2")
-    set(SDL2_INCLUDE_DIR "${EMSDK}/emscripten/system/include/SDL")
+    set(SDL3_LIBRARY "SDL3")
+    set(SDL3_INCLUDE_DIR "${EMSDK}/emscripten/system/include/SDL")
     # set(SDL2_MIXER_LIBRARIES "${SDL2_EXTRACT_PATH}/lib/x64/SDL2_mixer.lib")
     set(SDL2_MIXER_LIBRARY "SDL2_mixer")
     # set(SDL2_MIXER_INCLUDE_DIRS "${SDL2_EXTRACT_PATH}/include")
     set(SDL2_MIXER_INCLUDE_DIR "${EMSDK}/emscripten/system/include/SDL")
 else()
-    find_package(SDL2 REQUIRED)
+    find_package(SDL3 REQUIRED)
     find_package(SDL2_mixer REQUIRED)
 endif()
 
 if (PLATFORM_ANDROID)
-    add_library(${GAME} SHARED ${SDL2_ANDROID_HOOK} ${SOURCE_FILES})
+    add_library(${GAME} SHARED ${SDL3_ANDROID_HOOK} ${SOURCE_FILES})
 else()
     add_executable(${GAME} WIN32 ${SOURCE_FILES})
 endif()
@@ -483,16 +483,16 @@ if(APPLE)
     set(DIRS "")
     set(LIBS "")
 
-    # if SDL2 library is a framework, we need to indicate to CMake
-    # the path to its dependencies. SDL2_LIBRARY contains two parts.
-    # Example: /Library/Frameworks/SDL2.framework;-framework Cocoa
+    # if SDL3 library is a framework, we need to indicate to CMake
+    # the path to its dependencies. SDL3_LIBRARY contains two parts.
+    # Example: /Library/Frameworks/SDL3.framework;-framework Cocoa
     # So strip out everything after the ';'
-    string(REGEX REPLACE ";.*$" "" SDL2_LIB_DIR "${SDL2_LIBRARY}")
-    if(EXISTS "${SDL2_LIB_DIR}/Versions/A/Frameworks")
-        list(APPEND DIRS "${SDL2_LIB_DIR}/Versions/A/Frameworks")
+    string(REGEX REPLACE ";.*$" "" SDL3_LIB_DIR "${SDL3_LIBRARY}")
+    if(EXISTS "${SDL3_LIB_DIR}/Versions/A/Frameworks")
+        list(APPEND DIRS "${SDL3_LIB_DIR}/Versions/A/Frameworks")
     endif()
 
-    # if SDL2_mixer library is a framework, we need to indicate to CMake
+    # if SDL3_mixer library is a framework, we need to indicate to CMake
     # the path to its dependencies (Ogg.framework etc):
     if(EXISTS "${SDL2_MIXER_LIBRARY}/Versions/A/Frameworks")
         list(APPEND DIRS "${SDL2_MIXER_LIBRARY}/Versions/A/Frameworks")
@@ -515,7 +515,7 @@ if(APPLE)
     ")
 endif()
 
-include_directories(${SDL2_INCLUDE_DIR})
+include_directories(${SDL3_INCLUDE_DIR})
 include_directories(${SDL2_MIXER_INCLUDE_DIR})
 include_directories(${EXTEXPAT_INCLUDE_DIR})
 include_directories(${EXTPNG_INCLUDE_DIR})
@@ -547,7 +547,7 @@ if (UNIX AND NOT APPLE AND (CMAKE_COMPILER_IS_GNUCC OR CMAKE_C_COMPILER_ID STREQ
 endif()
 
 target_link_libraries (${GAME}
-                        ${SDL2_LIBRARY} ${SDL2_MIXER_LIBRARY} ${EXTMUJS_LIBRARY}
+                        ${SDL3_LIBRARY} ${SDL2_MIXER_LIBRARY} ${EXTMUJS_LIBRARY}
                         ${EXTEXPAT_LIBRARY} ${EXTPNG_LIBRARY} ${CPPTRACE_LIBRARY}
                         ${EXTLAME_LIBRARY} ${GPUPIXEL_LIBRARY} akhenaten::rc)
 

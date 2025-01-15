@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 FRAMEWORKS_PATH=$HOME/Library/Frameworks
-SDL2_VERSION=2.30.11
+SDL3_VERSION=3.1.8
 SDL2_MIXER_VERSION=2.8.0
 SDL2_IMAGE_VERSION=2.8.4
 
@@ -29,13 +29,13 @@ install_dmg () {
   rm "$DMG_DOWNLOAD_PATH"
 }
 
-# $1 = SDL2|SDL2_mixer|...
+# $1 = SDL3|SDL2_mixer|...
 installed_framework_version () {
   version=$(xmllint --xpath '/plist/dict/key[text()="CFBundleVersion"]/following::string[1]/text()' "$HOME/Library/Frameworks/$1.framework/Resources/Info.plist")
   echo "$version" | tr -d '\n'
 }
 
-# $1 = SDL2|SDL2_mixer|...
+# $1 = SDL3|SDL2_mixer|...
 error_different_version () {
   printf "ERROR: %s Framework is already installed at %s/Library/Frameworks/%s.framework at a different version!\n \
       Remove it or update manually to prevent conflicts\n" "$1" "$HOME" "$1"
@@ -45,15 +45,15 @@ error_different_version () {
 main () {
   mkdir -p "$FRAMEWORKS_PATH"
 
-  if [ ! -d "$FRAMEWORKS_PATH/SDL2.framework" ]
+  if [ ! -d "$FRAMEWORKS_PATH/SDL3.framework" ]
   then
-    SDL2_FILENAME=SDL2-$SDL2_VERSION.dmg
-    install_dmg "https://libsdl.org/release/" $SDL2_FILENAME
-  elif [ "$(installed_framework_version SDL2)" != "$SDL2_VERSION" ]
+    SDL3_FILENAME=SDL3-$SDL3_VERSION.dmg
+    install_dmg "https://libsdl.org/release/" $SDL3_FILENAME
+  elif [ "$(installed_framework_version SDL3)" != "$SDL3_VERSION" ]
   then
-    error_different_version SDL2
+    error_different_version SDL3
   else
-    echo "SDL2 framework already installed at required version, skipping"
+    echo "SDL3 framework already installed at required version, skipping"
   fi
 
   if [ ! -d "$FRAMEWORKS_PATH/SDL2_mixer.framework" ]
