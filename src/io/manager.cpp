@@ -11,7 +11,7 @@
 #define COMPRESS_BUFFER_SIZE 3000000
 #define UNCOMPRESSED 0x80000000
 
-#include "SDL.h"
+#include <SDL3/SDL.h>
 
 #ifdef _WIN32
 #ifdef _WIN64

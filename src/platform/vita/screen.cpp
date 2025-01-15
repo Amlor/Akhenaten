@@ -14,7 +14,7 @@
 #include <vita2d.h>
 
 // SDL_log
-#include <SDL.h>
+#include <SDL3/SDL.h>
 
 static SDL_Renderer* my_renderer;
 static SDL_Window* my_window;

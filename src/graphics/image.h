@@ -1,6 +1,6 @@
 #pragma once
 
-#include "SDL_render.h"
+#include <SDL3/SDL_render.h>
 #include "core/encoding.h"
 #include "core/xstring.h"
 #include "core/vec2i.h"

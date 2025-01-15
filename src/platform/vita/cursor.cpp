@@ -5,7 +5,7 @@
 #include "platform/vita/vita.h"
 #include <vita2d.h>
 
-#include "SDL.h"
+#include <SDL3/SDL.h>
 
 #define CURSOR_SIZE 32
 

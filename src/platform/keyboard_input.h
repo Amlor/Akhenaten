@@ -1,6 +1,6 @@
 #pragma once
 
-#include "SDL.h"
+#include <SDL3/SDL.h>
 
 void platform_handle_key_down(SDL_KeyboardEvent* event);
 

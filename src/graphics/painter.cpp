@@ -8,7 +8,7 @@
 #include <string>
 #include <unordered_map>
 
-#include <SDL.h>
+#include <SDL3/SDL.h>
 
 void painter::draw(SDL_Texture *texture, vec2i pos, vec2i offset, vec2i size, color color, float scale_x, float scale_y,
                    double angle, ImgFlags flags, const bool force_linear) {

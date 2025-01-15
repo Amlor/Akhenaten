@@ -29,7 +29,7 @@
 #include "graphics/imagepak_holder.h"
 #include "renderer.h"
 
-#include <SDL.h>
+#include <SDL3/SDL.h>
 
 #include <set>
 #include <platform/android/android.h>

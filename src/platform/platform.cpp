@@ -2,7 +2,7 @@
 
 #include "core/log.h"
 
-#include <SDL.h>
+#include <SDL3/SDL.h>
 #include <ctime>
 
 #if defined(GAME_PLATFORM_WIN)

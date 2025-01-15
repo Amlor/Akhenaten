@@ -4,7 +4,7 @@
 #include "platform/platform.h"
 #include "platform/screen.h"
 
-#include "SDL.h"
+#include <SDL3/SDL.h>
 
 static void display_crash_message() {
     platform_screen_show_error_message_box(

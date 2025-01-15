@@ -7,7 +7,7 @@
 #include "platform/android/jni.h"
 #include "content/content.h"
 
-#include <SDL.h>
+#include <SDL3/SDL.h>
 #include <string.h>
 
 static volatile int has_directory;

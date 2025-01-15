@@ -2,7 +2,7 @@
 #include "game/system.h"
 #include "platform/screen.h"
 
-#include <SDL_mouse.h>
+#include <SDL3/SDL_mouse.h>
 
 struct mouse_data_t {
     int x;

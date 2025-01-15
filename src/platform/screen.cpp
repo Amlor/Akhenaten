@@ -17,7 +17,7 @@
 #include "platform/vita/vita.h"
 #include "resource/icons.h"
 
-#include "SDL.h"
+#include <SDL3/SDL.h>
 
 #include <stdlib.h>
 

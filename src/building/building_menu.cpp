@@ -7,7 +7,7 @@
 #include "config/config.h"
 #include "scenario/scenario.h"
 
-#include "SDL.h"
+#include <SDL3/SDL.h>
 #include "core/archive.h"
 #include "core/game_environment.h"
 #include "io/gamefiles/lang.h"

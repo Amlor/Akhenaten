@@ -6,7 +6,7 @@
 #include <vita2d.h>
 #include <vitasdk.h>
 
-#include "SDL.h"
+#include <SDL3/SDL.h>
 #include <malloc.h>
 #include <stdio.h>
 #include <string.h>

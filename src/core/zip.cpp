@@ -691,7 +691,7 @@ static int pk_explode(pk_input_func* input_func,
     return PK_SUCCESS;
 }
 
-#include "SDL.h"
+#include <SDL3/SDL.h>
 
 // static int tots = 0;
 // static int lefts = 0;

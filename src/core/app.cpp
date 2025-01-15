@@ -3,7 +3,7 @@
 #include "game/settings.h"
 #include "platform/screen.h"
 #include "core/log.h"
-#include <SDL.h>
+#include <SDL3/SDL.h>
 
 void app_window_resize(const vec2i& wsize) {
     static int s_width;

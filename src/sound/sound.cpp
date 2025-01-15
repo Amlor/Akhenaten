@@ -1,9 +1,9 @@
-#include <SDL.h>
+#include <SDL3/SDL.h>
 
 #ifdef __APPLE__
 #include <SDL2_mixer/SDL_mixer.h>
 #else
-#include <SDL_mixer.h>
+#include <SDL3_mixer/SDL_mixer.h>
 #endif
 
 #include "sound/sound.h"

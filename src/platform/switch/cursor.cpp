@@ -5,7 +5,7 @@
 
 #include "switch.h"
 
-#include "SDL.h"
+#include <SDL3/SDL.h>
 
 #define CURSOR_SIZE 32
 

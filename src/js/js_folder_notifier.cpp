@@ -14,8 +14,8 @@
 #include <stdarg.h>
 #include <string.h>
 
-#include <SDL.h>
-#include <SDL_thread.h>
+#include <SDL3/SDL.h>
+#include <SDL3/SDL_thread.h>
 #include <filesystem>
 
 #ifdef _WIN32

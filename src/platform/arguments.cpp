@@ -10,7 +10,7 @@
 #include <filesystem>
 #include <string>
 #include <unordered_map>
-#include <SDL_system.h>
+#include <SDL3/SDL_system.h>
 
 #if defined(_WIN32) || defined(_WIN64)
 #include <ShlObj.h>

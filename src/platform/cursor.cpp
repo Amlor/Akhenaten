@@ -2,7 +2,7 @@
 #include "game/system.h"
 #include "graphics/color.h"
 
-#include "SDL.h"
+#include <SDL3/SDL.h>
 
 static SDL_Cursor* cursors[CURSOR_MAX];
 static SDL_Surface* cursor_surfaces[CURSOR_MAX];

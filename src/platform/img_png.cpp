@@ -21,8 +21,8 @@
 
 /* This is a PNG image file loading framework */
 
-//#include "SDL_image.h"
-#include <SDL.h>
+//#include <SDL3_image/SDL_image.h>
+#include <SDL3/SDL.h>
 #define IMG_SetError    SDL_SetError
 
 /* We'll have PNG save support by default */
@@ -51,7 +51,7 @@
 
 /* This code was originally written by Philippe Lavoie (2 November 1998) */
 
-#include "SDL_endian.h"
+#include <SDL3/SDL_endian.h>
 
 #ifdef macintosh
 #define MACOS

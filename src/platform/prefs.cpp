@@ -4,7 +4,7 @@
 #include "core/game_environment.h"
 #include "platform/platform.h"
 
-#include "SDL.h"
+#include <SDL3/SDL.h>
 
 #include <stdio.h>
 #include <stdlib.h>

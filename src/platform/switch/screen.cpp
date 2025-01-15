@@ -1,6 +1,6 @@
 #include "platform/screen.h"
 
-#include "SDL.h"
+#include <SDL3/SDL.h>
 
 #include "core/calc.h"
 #include "game/settings.h"

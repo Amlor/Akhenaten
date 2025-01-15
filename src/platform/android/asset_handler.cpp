@@ -9,7 +9,7 @@
 #include "android/asset_manager.h"
 #include "android/asset_manager_jni.h"
 
-#include <SDL.h>
+#include <SDL3/SDL.h>
 #include <stdio.h>
 #include <string.h>
 

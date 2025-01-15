@@ -6,7 +6,7 @@
 #include "widget/debug_console.h"
 #include "platform/platform.h"
 
-#include <SDL.h>
+#include <SDL3/SDL.h>
 
 ANK_REGISTER_PROPS_ITERATOR(config_load_filter_properties);
 
