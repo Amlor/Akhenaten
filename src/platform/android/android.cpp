@@ -177,14 +177,14 @@ extern "C" JNIEXPORT void JNICALL Java_com_github_dalerank_akhenaten_AkhenatenMa
 
 void platform_show_virtual_keyboard(void)
 {
-    if (!SDL_IsTextInputActive()) {
+    if (!SDL_TextInputActive()) {
         SDL_StartTextInput();
     }
 }
 
 void platform_hide_virtual_keyboard(void)
 {
-    if (SDL_IsTextInputActive()) {
+    if (SDL_TextInputActive()) {
         SDL_StopTextInput();
     }
 }

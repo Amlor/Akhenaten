@@ -143,13 +143,13 @@ void platform_screen_set_fullscreen(void) {
     int orig_w, orig_h;
     SDL_GetWindowSize(SDL.window, &orig_w, &orig_h);
     SDL_DisplayMode mode;
-    SDL_GetDesktopDisplayMode(SDL_GetWindowDisplayIndex(SDL.window), &mode);
+    SDL_GetDesktopDisplayMode(SDL_GetDisplayForWindow(SDL.window), &mode);
     logs::info("User to fullscreen %d x %d\n", mode.w, mode.h);
     if (0 != SDL_SetWindowFullscreen(SDL.window, SDL_WINDOW_FULLSCREEN_DESKTOP)) {
         logs::info("Unable to enter fullscreen: %s\n", SDL_GetError());
         return;
     }
-    SDL_SetWindowDisplayMode(SDL.window, &mode);
+    SDL_SetWindowFullscreenMode(SDL.window, &mode);
     setting_set_display(1, mode.w, mode.h);
 }
 
@@ -193,10 +193,10 @@ void platform_screen_render(void) {
                           &city_texture_position.offset,
                           graphics_canvas(CANVAS_CITY),
                           screen_width() * 4 * 2);
-        SDL_RenderCopy(SDL.renderer, SDL.texture_city, &city_texture_position.offset, &city_texture_position.renderer);
+        SDL_RenderTexture(SDL.renderer, SDL.texture_city, &city_texture_position.offset, &city_texture_position.renderer);
     }
     SDL_UpdateTexture(SDL.texture_ui, NULL, graphics_canvas(CANVAS_UI), screen_width() * 4);
-    SDL_RenderCopy(SDL.renderer, SDL.texture_ui, NULL, NULL);
+    SDL_RenderTexture(SDL.renderer, SDL.texture_ui, NULL, NULL);
 
     const mouse* mouse = mouse_get();
     if (!mouse->is_touch) {
@@ -205,7 +205,7 @@ void platform_screen_render(void) {
         dst.y = ((mouse->y - current_cursor->hotspot_y) * SWITCH_PIXEL_HEIGHT) / SWITCH_DISPLAY_HEIGHT;
         dst.w = (32 * SWITCH_PIXEL_WIDTH) / SWITCH_DISPLAY_WIDTH;
         dst.h = (32 * SWITCH_PIXEL_HEIGHT) / SWITCH_DISPLAY_HEIGHT;
-        SDL_RenderCopy(SDL.renderer, current_cursor->texture, NULL, &dst);
+        SDL_RenderTexture(SDL.renderer, current_cursor->texture, NULL, &dst);
     }
 
     SDL_RenderPresent(SDL.renderer);

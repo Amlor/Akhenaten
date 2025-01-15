@@ -318,7 +318,7 @@ static void create_full_city_screenshot() {
                //SDL_Renderer *renderer = SDL_CreateSoftwareRenderer(surface);
                 
                //SDL_Rect rect{0, 0, canvas_width, canvas_height};
-               //SDL_FillRect(surface, &rect, ((yy + i) % 2) ? 0xff00ff00 : 0xff0000ff);
+               //SDL_FillSurfaceRect(surface, &rect, ((yy + i) % 2) ? 0xff00ff00 : 0xff0000ff);
                 view_data_t local_view_data = full_city_view_data;
                 painter local_context;
                 local_context.view = &local_view_data;
@@ -332,7 +332,7 @@ static void create_full_city_screenshot() {
                 //SDL_Rect rect2 = {x_offset, y_offset, canvas_width, canvas_height};
                 //bool ok = SDL_RenderReadPixels(local_context.renderer, &rect2, SDL_PIXELFORMAT_ARGB8888, &canvas[width], city_canvas_pixels.x * sizeof(color)) == 0;
                //SDL_DestroyRenderer(renderer);
-               //SDL_FreeSurface(surface);
+               //SDL_DestroySurface(surface);
             //}, min_pos, width, canvas_width, current_height, canvas, x_offset, y_offset, image_section_width, canvas_height, city_canvas_pixels, full_city_view_data, ((yy + i) % 2) ? 0xff00ff00 : 0xff0000ff));
             i++;
         }

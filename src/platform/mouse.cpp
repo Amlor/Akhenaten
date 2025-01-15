@@ -23,12 +23,12 @@ void system_mouse_set_relative_mode(int enabled) {
 
     if (enabled) {
         SDL_GetMouseState(&data.x, &data.y);
-        SDL_SetRelativeMouseMode(SDL_TRUE);
+        SDL_SetRelativeMouseMode(true);
         // Discard the first value, which is incorrect
         // (the first one gives the relative position to center of window)
         system_mouse_get_relative_state(NULL, NULL);
     } else {
-        SDL_SetRelativeMouseMode(SDL_FALSE);
+        SDL_SetRelativeMouseMode(false);
         system_set_mouse_position(&data.x, &data.y);
         mouse_set_position(data.x, data.y);
     }

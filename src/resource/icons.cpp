@@ -28,7 +28,7 @@ CMRC_DECLARE(akhenaten);
 #include <string.h>
 #include <assert.h>
 
-SDL_Surface *IMG_LoadPNG_RW(SDL_RWops *src);
+SDL_Surface *IMG_LoadPNG_RW(SDL_IOStream *src);
 constexpr pcstr internal_res_path = "res/";
 
 struct inres_icon {
@@ -73,16 +73,16 @@ SDL_Texture *load_icon_texture(pcstr name, vec2i &size) {
 }
 
 SDL_Surface *load_icon_surface(pcstr name, vec2i &size) {
-    SDL_RWops *rw = nullptr;
+    SDL_IOStream *rw = nullptr;
 
     if (name && *name == '!') {
         auto it = std::find_if(std::begin(inres_icons), std::end(inres_icons), [name] (auto &it) { return strcmp(name, it.name) == 0; });
         if (it != std::end(inres_icons)) {
-            rw = SDL_RWFromMem(it->data, it->length);
+            rw = SDL_IOFromMem(it->data, it->length);
         }
     } else {
         auto data = internal_read_data(name);
-        rw = SDL_RWFromMem((void *)data.first, data.second);
+        rw = SDL_IOFromMem((void *)data.first, data.second);
     }
 
     if (rw) {

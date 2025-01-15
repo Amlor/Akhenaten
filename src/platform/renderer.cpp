@@ -64,7 +64,7 @@
 #endif
 
 int IMG_InitPNG();
-SDL_Surface *IMG_LoadPNG_RW(SDL_RWops *src);
+SDL_Surface *IMG_LoadPNG_RW(SDL_IOStream *src);
 int IMG_SavePNG(SDL_Surface *surface, const char *file);
 
 struct buffer_texture {
@@ -133,7 +133,7 @@ void graphics_renderer_interface::draw_line(vec2i start, vec2i end, color color)
                            (color & COLOR_CHANNEL_GREEN) >> COLOR_BITSHIFT_GREEN,
                            (color & COLOR_CHANNEL_BLUE) >> COLOR_BITSHIFT_BLUE,
                            (color & COLOR_CHANNEL_ALPHA) >> COLOR_BITSHIFT_ALPHA);
-    SDL_RenderDrawLine(data.renderer, start.x, start.y, end.x, end.y);
+    SDL_RenderLine(data.renderer, start.x, start.y, end.x, end.y);
 }
 
 void graphics_renderer_interface::draw_pixel(vec2i pixel, color color) {
@@ -143,7 +143,7 @@ void graphics_renderer_interface::draw_pixel(vec2i pixel, color color) {
                            (color & COLOR_CHANNEL_GREEN) >> COLOR_BITSHIFT_GREEN,
                            (color & COLOR_CHANNEL_BLUE) >> COLOR_BITSHIFT_BLUE,
                            (color & COLOR_CHANNEL_ALPHA) >> COLOR_BITSHIFT_ALPHA);
-    SDL_RenderDrawPoint(data.renderer, pixel.x, pixel.y);
+    SDL_RenderPoint(data.renderer, pixel.x, pixel.y);
 }
 void graphics_renderer_interface::draw_rect(vec2i start, vec2i size, color color) {
     auto &data = g_renderer_data;
@@ -153,7 +153,7 @@ void graphics_renderer_interface::draw_rect(vec2i start, vec2i size, color color
                            (color & COLOR_CHANNEL_BLUE) >> COLOR_BITSHIFT_BLUE,
                            (color & COLOR_CHANNEL_ALPHA) >> COLOR_BITSHIFT_ALPHA);
     SDL_Rect rect = {start.x, start.y, size.x + 1, size.y + 1};
-    SDL_RenderDrawRect(data.renderer, &rect);
+    SDL_RenderRect(data.renderer, &rect);
 }
 
 void graphics_renderer_interface::fill_rect(vec2i start, vec2i size, color color) {
@@ -176,25 +176,25 @@ void graphics_renderer_interface::clear_screen(void) {
 void graphics_renderer_interface::set_viewport(int x, int y, int width, int height) {
     auto &data = g_renderer_data;
     SDL_Rect viewport = {x, y, width, height};
-    SDL_RenderSetViewport(data.renderer, &viewport);
+    SDL_SetRenderViewport(data.renderer, &viewport);
 }
 
 void graphics_renderer_interface::reset_viewport(void) {
     auto &data = g_renderer_data;
-    SDL_RenderSetViewport(data.renderer, NULL);
-    SDL_RenderSetClipRect(data.renderer, NULL);
+    SDL_SetRenderViewport(data.renderer, NULL);
+    SDL_SetRenderClipRect(data.renderer, NULL);
 }
 
 void graphics_renderer_interface::set_clip_rectangle(vec2i pos, int width, int height) {
     auto &data = g_renderer_data;
     SDL_Rect clip = {pos.x, pos.y, width, height};
-    SDL_RenderSetClipRect(data.renderer, &clip);
+    SDL_SetRenderClipRect(data.renderer, &clip);
 }
 
 bool graphics_renderer_interface::inside_clip_rectangle(vec2i pos) {
     auto &data = g_renderer_data;
     SDL_Rect clip;
-    SDL_RenderGetClipRect(data.renderer, &clip);
+    SDL_GetRenderClipRect(data.renderer, &clip);
 
     if (clip.w <= 0 || clip.h <= 0) {
         return true;
@@ -206,14 +206,14 @@ bool graphics_renderer_interface::inside_clip_rectangle(vec2i pos) {
 rect graphics_renderer_interface::clip_rectangle() {
     auto &data = g_renderer_data;
     SDL_Rect clip;
-    SDL_RenderGetClipRect(data.renderer, &clip);
+    SDL_GetRenderClipRect(data.renderer, &clip);
 
     return { {clip.x, clip.y}, {clip.x + clip.w, clip.y + clip.h} };
 }
 
 void graphics_renderer_interface::reset_clip_rectangle(void) {
     auto &data = g_renderer_data;
-    SDL_RenderSetClipRect(data.renderer, NULL);
+    SDL_SetRenderClipRect(data.renderer, NULL);
 }
 
 vec2i graphics_renderer_interface::get_max_image_size() {
@@ -273,8 +273,8 @@ void graphics_renderer_interface::set_texture_scale_mode(SDL_Texture* texture, f
     if (HAS_TEXTURE_SCALE_MODE) {
         SDL_ScaleMode current_scale_mode;
         SDL_GetTextureScaleMode(texture, &current_scale_mode);
-        SDL_ScaleMode desired_scale_mode = (force_linear || scale_factor < 1.0f ? SDL_ScaleModeLinear : SDL_ScaleModeNearest);
-        //        SDL_ScaleMode desired_scale_mode = (scale_factor < 1.0f ? SDL_ScaleModeBest : SDL_ScaleModeNearest);
+        SDL_ScaleMode desired_scale_mode = (force_linear || scale_factor < 1.0f ? SDL_SCALEMODE_LINEAR : SDL_SCALEMODE_NEAREST);
+        //        SDL_ScaleMode desired_scale_mode = (scale_factor < 1.0f ? SDL_ScaleModeBest : SDL_SCALEMODE_NEAREST);
         if (current_scale_mode != desired_scale_mode) {
             SDL_SetTextureScaleMode(texture, desired_scale_mode);
         }
@@ -495,18 +495,18 @@ int graphics_renderer_interface::save_texture_from_screen(int texture_id, vec2i 
 
 #ifdef USE_TEXTURE_SCALE_MODE
     if (HAS_TEXTURE_SCALE_MODE) {
-        SDL_SetTextureScaleMode(texture_info.texture, SDL_ScaleModeNearest);
+        SDL_SetTextureScaleMode(texture_info.texture, SDL_SCALEMODE_NEAREST);
     }
 #endif // USE_TEXTURE_SCALE_MODE
 
     SDL_Rect former_viewport;
-    SDL_RenderGetViewport(data.renderer, &former_viewport);
+    SDL_GetRenderViewport(data.renderer, &former_viewport);
     SDL_Rect src_rect = {pos.x + former_viewport.x, pos.y + former_viewport.y, width, height};
     SDL_Rect dst_rect = {0, 0, width, height};
     SDL_SetRenderTarget(data.renderer, texture_info.texture);
-    SDL_RenderCopy(data.renderer, former_target, &src_rect, &dst_rect);
+    SDL_RenderTexture(data.renderer, former_target, &src_rect, &dst_rect);
     SDL_SetRenderTarget(data.renderer, former_target);
-    SDL_RenderSetViewport(data.renderer, &former_viewport);
+    SDL_SetRenderViewport(data.renderer, &former_viewport);
 
     return texture_info.id;
 }
@@ -531,7 +531,7 @@ void graphics_renderer_interface::draw_saved_texture_to_screen(int texture_id, i
     }
     SDL_Rect src_coords = {0, 0, texture_info->width, texture_info->height};
     SDL_Rect dst_coords = {x, y, width, height};
-    SDL_RenderCopy(data.renderer, texture_info->texture, &src_coords, &dst_coords);
+    SDL_RenderTexture(data.renderer, texture_info->texture, &src_coords, &dst_coords);
 }
 
 void graphics_renderer_interface::clear_saved_texture(int texture_id, color clr) {
@@ -547,7 +547,7 @@ void graphics_renderer_interface::clear_saved_texture(int texture_id, color clr)
     }
 
     SDL_Rect former_viewport;
-    SDL_RenderGetViewport(data.renderer, &former_viewport);
+    SDL_GetRenderViewport(data.renderer, &former_viewport);
     SDL_Rect dst_rect = { 0, 0, texture_info->width, texture_info->height };
     SDL_SetRenderTarget(data.renderer, texture_info->texture);
     SDL_SetRenderDrawColor(data.renderer,
@@ -557,7 +557,7 @@ void graphics_renderer_interface::clear_saved_texture(int texture_id, color clr)
                             (clr & COLOR_CHANNEL_BLUE) >> COLOR_BITSHIFT_BLUE);
 
     SDL_SetRenderTarget(data.renderer, former_target);
-    SDL_RenderSetViewport(data.renderer, &former_viewport);
+    SDL_SetRenderViewport(data.renderer, &former_viewport);
 }
 
 static void create_blend_texture(int type) {
@@ -572,13 +572,13 @@ static void create_blend_texture(int type) {
     SDL_Texture* former_target = SDL_GetRenderTarget(data.renderer);
     SDL_Rect former_viewport;
     SDL_Rect former_clip;
-    SDL_RenderGetViewport(data.renderer, &former_viewport);
-    SDL_RenderGetClipRect(data.renderer, &former_clip);
+    SDL_GetRenderViewport(data.renderer, &former_viewport);
+    SDL_GetRenderClipRect(data.renderer, &former_clip);
 
     SDL_SetRenderTarget(data.renderer, texture);
     SDL_Rect rect = {0, 0, 58, 30};
-    SDL_RenderSetClipRect(data.renderer, &rect);
-    SDL_RenderSetViewport(data.renderer, &rect);
+    SDL_SetRenderClipRect(data.renderer, &rect);
+    SDL_SetRenderViewport(data.renderer, &rect);
     SDL_SetRenderDrawColor(data.renderer, 0xff, 0xff, 0xff, 0xff);
     color color = type == CUSTOM_IMAGE_RED_FOOTPRINT ? COLOR_MASK_RED : COLOR_MASK_GREEN;
     SDL_RenderClear(data.renderer);
@@ -590,11 +590,11 @@ static void create_blend_texture(int type) {
                            (color & COLOR_CHANNEL_BLUE) >> COLOR_BITSHIFT_BLUE);
     SDL_SetTextureAlphaMod(flat_tile, 0xff);
     SDL_Rect src_coords = {img->atlas.offset.x, img->atlas.offset.y, img->width, img->height};
-    SDL_RenderCopy(data.renderer, flat_tile, &src_coords, 0);
+    SDL_RenderTexture(data.renderer, flat_tile, &src_coords, 0);
 
     SDL_SetRenderTarget(data.renderer, former_target);
-    SDL_RenderSetViewport(data.renderer, &former_viewport);
-    SDL_RenderSetClipRect(data.renderer, &former_clip);
+    SDL_SetRenderViewport(data.renderer, &former_viewport);
+    SDL_SetRenderClipRect(data.renderer, &former_clip);
 
     SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_MOD);
 
@@ -624,11 +624,11 @@ static void set_texture_color_and_scale_mode(SDL_Texture *texture, color color, 
     SDL_ScaleMode current_scale_mode;
     SDL_GetTextureScaleMode(texture, &current_scale_mode);
 
-    SDL_ScaleMode city_scale_mode = SDL_ScaleModeNearest;
-    SDL_ScaleMode texture_scale_mode = scale != 1.0f ? SDL_ScaleModeLinear : SDL_ScaleModeNearest;
+    SDL_ScaleMode city_scale_mode = SDL_SCALEMODE_NEAREST;
+    SDL_ScaleMode texture_scale_mode = scale != 1.0f ? SDL_SCALEMODE_LINEAR : SDL_SCALEMODE_NEAREST;
     //SDL_ScaleMode desired_scale_mode = data.city_scale == scale ? city_scale_mode : texture_scale_mode;
     //if (data.disable_linear_filter) {
-    //    desired_scale_mode = SDL_ScaleModeNearest;
+    //    desired_scale_mode = SDL_SCALEMODE_NEAREST;
     //}
     //if (current_scale_mode != desired_scale_mode) {
         SDL_SetTextureScaleMode(texture, texture_scale_mode);
@@ -673,7 +673,7 @@ void graphics_renderer_interface::draw_texture_advanced(const image_t *img, floa
             (img->width - grid_correction) / scale_x,
             (img->height - grid_correction) / scale_y
         };
-        SDL_RenderCopyExF(data.renderer, texture, &src_coords, &dst_coords, angle, NULL, SDL_FLIP_NONE);
+        SDL_RenderTextureRotated(data.renderer, texture, &src_coords, &dst_coords, angle, NULL, SDL_FLIP_NONE);
         return;
     }
 #endif
@@ -684,7 +684,7 @@ void graphics_renderer_interface::draw_texture_advanced(const image_t *img, floa
         (int) round((img->width - grid_correction) / scale_x),
         (int) round((img->height - grid_correction) / scale_y)
     };
-    SDL_RenderCopyEx(data.renderer, texture, &src_coords, &dst_coords, angle, NULL, SDL_FLIP_NONE);
+    SDL_RenderTextureRotated(data.renderer, texture, &src_coords, &dst_coords, angle, NULL, SDL_FLIP_NONE);
 }
 
 static void draw_texture(const image_t *img, int x, int y, color color, float scale) {
@@ -756,7 +756,7 @@ void load_unpacked_image(const image_t* img, const color* pixels) {
         }
         if (oldest_texture_index == -1) {
             logs::error("Unable to create surface for texture - %s", SDL_GetError());
-            SDL_FreeSurface(surface);
+            SDL_DestroySurface(surface);
             return;
         }
         SDL_DestroyTexture(data.unpacked_images[oldest_texture_index].texture);
@@ -764,7 +764,7 @@ void load_unpacked_image(const image_t* img, const color* pixels) {
         data.unpacked_images[index].texture = SDL_CreateTextureFromSurface(data.renderer, surface);
     }
     SDL_SetTextureBlendMode(data.unpacked_images[index].texture, SDL_BLENDMODE_BLEND);
-    SDL_FreeSurface(surface);
+    SDL_DestroySurface(surface);
 }
 
 SDL_Texture* graphics_renderer_interface::create_texture_from_buffer(color* p_data, int width, int height) {
@@ -789,7 +789,7 @@ SDL_Texture* graphics_renderer_interface::create_texture_from_buffer(color* p_da
         return nullptr;
     }
     SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);
-    SDL_FreeSurface(surface);
+    SDL_DestroySurface(surface);
 #endif
 
     return texture;
@@ -801,7 +801,7 @@ bool graphics_renderer_interface::has_texture_scale_mode() {
 
 SDL_Texture* graphics_renderer_interface::create_texture_from_png_buffer(void *buffer, int size, vec2i &txsize) {
     auto &data = g_renderer_data;
-    SDL_RWops *rw = SDL_RWFromMem(buffer, size);
+    SDL_IOStream *rw = SDL_IOFromMem(buffer, size);
     SDL_Surface* loadedSurface= IMG_LoadPNG_RW(rw);
 
     if (loadedSurface == nullptr) {
@@ -813,7 +813,7 @@ SDL_Texture* graphics_renderer_interface::create_texture_from_png_buffer(void *b
         txsize.x = loadedSurface->w;
         txsize.y = loadedSurface->h;
         SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);
-        SDL_FreeSurface( loadedSurface );
+        SDL_DestroySurface( loadedSurface );
         return texture;
     }
 
@@ -872,7 +872,7 @@ bool graphics_renderer_interface::save_texture_to_file(const char* filename, SDL
     SDL_SetRenderDrawColor(data.renderer, 0x00, 0x00, 0x00, 0x00);
     SDL_RenderClear(data.renderer);
 
-    st = SDL_RenderCopy(data.renderer, tex, NULL, NULL);
+    st = SDL_RenderTexture(data.renderer, tex, NULL, NULL);
     if (st != 0) {
         logs::info("Failed copying texture data: %s\n", SDL_GetError());
         goto cleanup;
@@ -919,7 +919,7 @@ bool graphics_renderer_interface::save_texture_to_file(const char* filename, SDL
         logs::info("Saved texture to %s\n", filename);
 
 cleanup:
-    SDL_FreeSurface(surf);
+    SDL_DestroySurface(surf);
     free(pixels);
     SDL_DestroyTexture(ren_tex);
     if (st == -1)
@@ -1077,7 +1077,7 @@ int platform_renderer_create_render_texture(int width, int height) {
 #endif
 
     SDL_SetRenderTarget(data.renderer, NULL);
-    SDL_RenderSetLogicalSize(data.renderer, width, height);
+    SDL_SetRenderLogicalPresentation(data.renderer, width, height);
 
     data.render_texture = SDL_CreateTexture(data.renderer, SDL_PIXELFORMAT_ABGR8888, SDL_TEXTUREACCESS_TARGET, width, height);
 
@@ -1088,10 +1088,10 @@ int platform_renderer_create_render_texture(int width, int height) {
 
 #ifdef USE_TEXTURE_SCALE_MODE
         if (HAS_TEXTURE_SCALE_MODE) {
-            SDL_ScaleMode scale_quality = SDL_ScaleModeLinear;
+            SDL_ScaleMode scale_quality = SDL_SCALEMODE_LINEAR;
 #ifndef __APPLE__
             if (platform_screen_get_scale() % 100 == 0) {
-                scale_quality = SDL_ScaleModeNearest;
+                scale_quality = SDL_SCALEMODE_NEAREST;
             }
 #endif
             SDL_SetTextureScaleMode(data.render_texture, scale_quality);
@@ -1140,7 +1140,7 @@ static void draw_software_mouse_cursor(void) {
         dst.y = mouse->y - data.cursors[current].hotspot.y;
         dst.w = size;
         dst.h = size;
-        SDL_RenderCopy(data.renderer, data.cursors[current].texture, NULL, &dst);
+        SDL_RenderTexture(data.renderer, data.cursors[current].texture, NULL, &dst);
     }
 }
 #endif
@@ -1172,13 +1172,13 @@ void platform_render_apply_filter() {
         data.filter_texture = SDL_CreateTexture(data.renderer, format, SDL_TEXTUREACCESS_STREAMING, w, h);
     }
 
-    SDL_RenderFlush(data.renderer);
+    SDL_FlushRenderer(data.renderer);
     int error = -1;
     {
         OZZY_PROFILER_SECTION("Game/Run/Renderer/Render/Filter/ReadPixels");
         //error = SDL_RenderReadPixels(data.renderer, NULL, format, data.filter_pixels.data(), w * SDL_BYTESPERPIXEL(format));
         
-        SDL_RenderFlush(data.renderer);
+        SDL_FlushRenderer(data.renderer);
         //error = 0;
     }
 
@@ -1197,9 +1197,9 @@ void platform_renderer_render() {
     SDL_SetRenderTarget(data.renderer, NULL);
 
     if (platform_render_any_filter_active()) {
-        SDL_RenderCopy(data.renderer, data.filter_texture, NULL, NULL);
+        SDL_RenderTexture(data.renderer, data.filter_texture, NULL, NULL);
     } else {
-        SDL_RenderCopy(data.renderer, data.render_texture, NULL, NULL);
+        SDL_RenderTexture(data.renderer, data.render_texture, NULL, NULL);
     }
 
 #ifdef PLATFORM_USE_SOFTWARE_CURSOR

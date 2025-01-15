@@ -171,7 +171,7 @@ static bool pre_init(pcstr custom_data_dir) {
 /** Show configuration window to override parameters of the startup.
  */
 static void show_options_window(Arguments& args) {
-    auto const window_flags = SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI;
+    auto const window_flags = SDL_WINDOW_RESIZABLE | SDL_WINDOW_HIGH_PIXEL_DENSITY;
     SDL_Window* platform_window = SDL_CreateWindow("Akhenaten: configuration", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 1280, 720, window_flags);
 
     SDL_Renderer* renderer = SDL_CreateRenderer(platform_window, -1, SDL_RENDERER_PRESENTVSYNC | SDL_RENDERER_ACCELERATED);
@@ -197,11 +197,11 @@ static void show_options_window(Arguments& args) {
         SDL_Event event;
         while (SDL_PollEvent(&event)) {
             ImGui_ImplSDL2_ProcessEvent(&event);
-            if (event.type == SDL_QUIT) {
+            if (event.type == SDL_EVENT_QUIT) {
                 exit(1);
             }
 
-            if (event.type == SDL_WINDOWEVENT && event.window.event == SDL_WINDOWEVENT_CLOSE
+            if (event.type == SDL_WINDOWEVENT && event.window.event == SDL_EVENT_WINDOW_CLOSE_REQUESTED
                 && event.window.windowID == SDL_GetWindowID(platform_window)) {
                 exit(1);
             }
@@ -349,7 +349,7 @@ static void setup() {
 #endif
 
 #if defined(GAME_PLATFORM_ANDROID)
-    g_args.set_data_directory(SDL_AndroidGetExternalStoragePath());
+    g_args.set_data_directory(SDL_GetAndroidExternalStoragePath());
 #endif
 
     // pre-init engine: assert game directory, pref files, etc.
@@ -497,29 +497,29 @@ static void handle_mouse_button(SDL_MouseButtonEvent* event, int is_down) {
 #ifndef __SWITCH__
 static void handle_window_event(SDL_WindowEvent* event, bool &window_active) {
     switch (event->event) {
-    case SDL_WINDOWEVENT_ENTER:
+    case SDL_EVENT_WINDOW_MOUSE_ENTER:
         mouse_set_inside_window(1);
         break;
-    case SDL_WINDOWEVENT_LEAVE:
+    case SDL_EVENT_WINDOW_MOUSE_LEAVE:
         mouse_set_inside_window(0);
         break;
-    case SDL_WINDOWEVENT_SIZE_CHANGED:
+    case SDL_EVENT_WINDOW_PIXEL_SIZE_CHANGED:
         logs::info("Window resized to %d x %d", (int)event->data1, (int)event->data2);
         platform_screen_resize(event->data1, event->data2, 1);
         break;
-    case SDL_WINDOWEVENT_RESIZED:
+    case SDL_EVENT_WINDOW_RESIZED:
         logs::info("System resize to %d x %d", (int)event->data1, (int)event->data2);
         break;
-    case SDL_WINDOWEVENT_MOVED:
+    case SDL_EVENT_WINDOW_MOVED:
         logs::info("Window move to coordinates x: %d y: %d\n", (int)event->data1, (int)event->data2);
         platform_screen_move(event->data1, event->data2);
         break;
 
-    case SDL_WINDOWEVENT_SHOWN:
+    case SDL_EVENT_WINDOW_SHOWN:
         logs::info("Window %d shown", (unsigned int)event->windowID);
         window_active = true;
         break;
-    case SDL_WINDOWEVENT_HIDDEN:
+    case SDL_EVENT_WINDOW_HIDDEN:
         logs::info("Window %d hidden", (unsigned int)event->windowID);
         window_active = false;
         break;
@@ -533,51 +533,51 @@ static void handle_event(SDL_Event* event, bool &active, bool &quit) {
         handle_window_event(&event->window, active);
         break;
 #endif
-    case SDL_KEYDOWN:
+    case SDL_EVENT_KEY_DOWN:
         platform_handle_key_down(&event->key);
         break;
-    case SDL_KEYUP:
+    case SDL_EVENT_KEY_UP:
         platform_handle_key_up(&event->key);
         break;
-    case SDL_TEXTINPUT:
+    case SDL_EVENT_TEXT_INPUT:
         platform_handle_text(&event->text);
         break;
-    case SDL_MOUSEMOTION:
+    case SDL_EVENT_MOUSE_MOTION:
         if (event->motion.which != SDL_TOUCH_MOUSEID && !SDL_GetRelativeMouseMode())
             mouse_set_position(event->motion.x, event->motion.y);
 
         break;
-    case SDL_MOUSEBUTTONDOWN:
+    case SDL_EVENT_MOUSE_BUTTON_DOWN:
         if (event->button.which != SDL_TOUCH_MOUSEID)
             handle_mouse_button(&event->button, 1);
 
         break;
-    case SDL_MOUSEBUTTONUP:
+    case SDL_EVENT_MOUSE_BUTTON_UP:
         if (event->button.which != SDL_TOUCH_MOUSEID)
             handle_mouse_button(&event->button, 0);
 
         break;
-    case SDL_MOUSEWHEEL:
+    case SDL_EVENT_MOUSE_WHEEL:
         if (event->wheel.which != SDL_TOUCH_MOUSEID)
             mouse_set_scroll(event->wheel.y > 0 ? SCROLL_UP : event->wheel.y < 0 ? SCROLL_DOWN : SCROLL_NONE);
 
         break;
 
-    case SDL_FINGERDOWN:
+    case SDL_EVENT_FINGER_DOWN:
         platform_touch_start(&event->tfinger);
         break;
-    case SDL_FINGERMOTION:
+    case SDL_EVENT_FINGER_MOTION:
         platform_touch_move(&event->tfinger);
         break;
-    case SDL_FINGERUP:
+    case SDL_EVENT_FINGER_UP:
         platform_touch_end(&event->tfinger);
         break;
 
-    case SDL_QUIT:
+    case SDL_EVENT_QUIT:
         quit = true;
         break;
 
-    case SDL_USEREVENT:
+    case SDL_EVENT_USER:
         if (event->user.code == USER_EVENT_QUIT)
             quit = true;
         else if (event->user.code == USER_EVENT_RESIZE)

@@ -121,7 +121,7 @@ int switch_poll_event(SDL_Event* event) {
     int ret = SDL_PollEvent(event);
     if (event != NULL) {
         switch (event->type) {
-        case SDL_JOYBUTTONDOWN:
+        case SDL_EVENT_JOYSTICK_BUTTON_DOWN:
             if (event->jbutton.which != 0) { // Only Joystick 0 controls the game
                 break;
             }
@@ -132,13 +132,13 @@ int switch_poll_event(SDL_Event* event) {
             case SWITCH_PAD_DOWN:
             case SWITCH_PAD_LEFT:
             case SWITCH_PAD_RIGHT: // intentional fallthrough
-                switch_button_to_sdlkey_event(event->jbutton.button, event, SDL_KEYDOWN);
+                switch_button_to_sdlkey_event(event->jbutton.button, event, SDL_EVENT_KEY_DOWN);
                 break;
             case SWITCH_PAD_B:
             case SWITCH_PAD_R:
             case SWITCH_PAD_A:
             case SWITCH_PAD_L: // intentional fallthrough
-                switch_button_to_sdlmouse_event(event->jbutton.button, event, SDL_MOUSEBUTTONDOWN);
+                switch_button_to_sdlmouse_event(event->jbutton.button, event, SDL_EVENT_MOUSE_BUTTON_DOWN);
                 break;
             case SWITCH_PAD_ZL:
                 fast_mouse = 1;
@@ -163,7 +163,7 @@ int switch_poll_event(SDL_Event* event) {
                 break;
             }
             break;
-        case SDL_JOYBUTTONUP:
+        case SDL_EVENT_JOYSTICK_BUTTON_UP:
             if (event->jbutton.which != 0) { // Only Joystick 0 controls the game
                 break;
             }
@@ -174,13 +174,13 @@ int switch_poll_event(SDL_Event* event) {
             case SWITCH_PAD_DOWN:
             case SWITCH_PAD_LEFT:
             case SWITCH_PAD_RIGHT: // intentional fallthrough
-                switch_button_to_sdlkey_event(event->jbutton.button, event, SDL_KEYUP);
+                switch_button_to_sdlkey_event(event->jbutton.button, event, SDL_EVENT_KEY_UP);
                 break;
             case SWITCH_PAD_B:
             case SWITCH_PAD_R:
             case SWITCH_PAD_A:
             case SWITCH_PAD_L: // intentional fallthrough
-                switch_button_to_sdlmouse_event(event->jbutton.button, event, SDL_MOUSEBUTTONUP);
+                switch_button_to_sdlmouse_event(event->jbutton.button, event, SDL_EVENT_MOUSE_BUTTON_UP);
                 break;
             case SWITCH_PAD_ZL:
                 fast_mouse = 0;
@@ -207,10 +207,10 @@ int switch_poll_event(SDL_Event* event) {
 
 void switch_handle_analog_sticks(void) {
     if (!joy) {
-        joy = SDL_JoystickOpen(0);
+        joy = SDL_OpenJoystick(0);
     }
-    int left_x = SDL_JoystickGetAxis(joy, 0);
-    int left_y = SDL_JoystickGetAxis(joy, 1);
+    int left_x = SDL_GetJoystickAxis(joy, 0);
+    int left_y = SDL_GetJoystickAxis(joy, 1);
     switch_rescale_analog(&left_x, &left_y, 2000);
     hires_dx += left_x; // sub-pixel precision to allow slow mouse motion at speeds < 1 pixel/frame
     hires_dy += left_y;
@@ -253,7 +253,7 @@ void switch_handle_analog_sticks(void) {
                 yrel = y - last_mouse_y;
             }
             SDL_Event event;
-            event.type = SDL_MOUSEMOTION;
+            event.type = SDL_EVENT_MOUSE_MOTION;
             event.motion.x = x;
             event.motion.y = y;
             event.motion.xrel = xrel;
@@ -263,8 +263,8 @@ void switch_handle_analog_sticks(void) {
     }
 
     // map right stick to cursor keys
-    float right_x = SDL_JoystickGetAxis(joy, 2);
-    float right_y = -1 * SDL_JoystickGetAxis(joy, 3);
+    float right_x = SDL_GetJoystickAxis(joy, 2);
+    float right_y = -1 * SDL_GetJoystickAxis(joy, 3);
     float right_joy_dead_zone_squared = 10240.0 * 10240.0;
     float slope = 0.414214f; // tangent of 22.5 degrees for size of angular zones
 
@@ -334,17 +334,17 @@ static void switch_start_text_input(void) {
     if (!switch_keyboard_get("Enter New Text:", vkbd.utf8_text, vkbd.max_length))
         return;
     for (int i = 0; i < MAX_VKBD_TEXT_SIZE; i++) {
-        switch_create_and_push_sdlkey_event(SDL_KEYDOWN, SDL_SCANCODE_BACKSPACE, SDLK_BACKSPACE);
-        switch_create_and_push_sdlkey_event(SDL_KEYUP, SDL_SCANCODE_BACKSPACE, SDLK_BACKSPACE);
+        switch_create_and_push_sdlkey_event(SDL_EVENT_KEY_DOWN, SDL_SCANCODE_BACKSPACE, SDLK_BACKSPACE);
+        switch_create_and_push_sdlkey_event(SDL_EVENT_KEY_UP, SDL_SCANCODE_BACKSPACE, SDLK_BACKSPACE);
     }
     for (int i = 0; i < MAX_VKBD_TEXT_SIZE; i++) {
-        switch_create_and_push_sdlkey_event(SDL_KEYDOWN, SDL_SCANCODE_DELETE, SDLK_DELETE);
-        switch_create_and_push_sdlkey_event(SDL_KEYUP, SDL_SCANCODE_DELETE, SDLK_DELETE);
+        switch_create_and_push_sdlkey_event(SDL_EVENT_KEY_DOWN, SDL_SCANCODE_DELETE, SDLK_DELETE);
+        switch_create_and_push_sdlkey_event(SDL_EVENT_KEY_UP, SDL_SCANCODE_DELETE, SDLK_DELETE);
     }
     for (int i = 0; i < MAX_VKBD_TEXT_SIZE - 1 && vkbd.utf8_text[i];) {
         int bytes_in_char = encoding_get_utf8_character_bytes(vkbd.utf8_text[i]);
         SDL_Event textinput_event;
-        textinput_event.type = SDL_TEXTINPUT;
+        textinput_event.type = SDL_EVENT_TEXT_INPUT;
         for (int n = 0; n < bytes_in_char; n++) {
             textinput_event.text.text[n] = vkbd.utf8_text[i + n];
         }
@@ -426,10 +426,10 @@ static void switch_button_to_sdlkey_event(int switch_button, SDL_Event* event, u
     event->key.keysym.mod = 0;
     event->key.repeat = 0;
 
-    if (event_type == SDL_KEYDOWN) {
+    if (event_type == SDL_EVENT_KEY_DOWN) {
         pressed_buttons[switch_button] = 1;
     }
-    if (event_type == SDL_KEYUP) {
+    if (event_type == SDL_EVENT_KEY_UP) {
         pressed_buttons[switch_button] = 0;
     }
 }
@@ -437,11 +437,11 @@ static void switch_button_to_sdlkey_event(int switch_button, SDL_Event* event, u
 static void switch_button_to_sdlmouse_event(int switch_button, SDL_Event* event, uint32_t event_type) {
     event->type = event_type;
     event->button.button = map_switch_button_to_sdlmousebutton[switch_button];
-    if (event_type == SDL_MOUSEBUTTONDOWN) {
+    if (event_type == SDL_EVENT_MOUSE_BUTTON_DOWN) {
         event->button.state = SDL_PRESSED;
         pressed_buttons[switch_button] = 1;
     }
-    if (event_type == SDL_MOUSEBUTTONUP) {
+    if (event_type == SDL_EVENT_MOUSE_BUTTON_UP) {
         event->button.state = SDL_RELEASED;
         pressed_buttons[switch_button] = 0;
     }
@@ -459,7 +459,7 @@ static void switch_create_and_push_sdlkey_event(uint32_t event_type, SDL_Scancod
 }
 
 static void switch_create_key_event_for_direction(int direction, int key_pressed) {
-    uint32_t event_type = key_pressed ? SDL_KEYDOWN : SDL_KEYUP;
+    uint32_t event_type = key_pressed ? SDL_EVENT_KEY_DOWN : SDL_EVENT_KEY_UP;
     switch (direction) {
     case ANALOG_UP:
         switch_create_and_push_sdlkey_event(event_type, SDL_SCANCODE_UP, SDLK_UP);

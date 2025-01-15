@@ -28,7 +28,7 @@
 #endif
 
 #define AUDIO_RATE 22050
-#define AUDIO_FORMAT AUDIO_S16
+#define AUDIO_FORMAT SDL_AUDIO_S16LE
 #define AUDIO_CHANNELS 2
 #define AUDIO_BUFFERS 1024
 
@@ -157,8 +157,8 @@ void* sound_manager_t::load_chunk(pcstr filename) {
                 return nullptr;
             }
 
-            SDL_RWops* sdl_fp = SDL_RWFromConstMem(r->data(), r->size());
-            return Mix_LoadWAV_RW(sdl_fp, SDL_FALSE);
+            SDL_IOStream* sdl_fp = SDL_IOFromConstMem(r->data(), r->size());
+            return Mix_LoadWAV_RW(sdl_fp, false);
         }
 
 #if defined(__vita__) || defined(GAME_PLATFORM_ANDROID)
@@ -167,10 +167,10 @@ void* sound_manager_t::load_chunk(pcstr filename) {
             return NULL;
         }
 
-        SDL_RWops* sdl_fp = SDL_RWFromFP(fp, SDL_TRUE);
+        SDL_IOStream* sdl_fp = SDL_RWFromFP(fp, true);
         return Mix_LoadWAV_RW(sdl_fp, 1);
 #else
-        return Mix_LoadWAV_RW(SDL_RWFromFile(filename, "rb"), 1);
+        return Mix_LoadWAV_RW(SDL_IOFromFile(filename, "rb"), 1);
 #endif
     } else {
         return NULL;
@@ -377,8 +377,8 @@ bool sound_manager_t::play_music(pcstr filename, int volume_pct) {
     if (!vita_music_data.buffer)
         return 0;
 
-    SDL_RWops* sdl_music = SDL_RWFromMem(vita_music_data.buffer, vita_music_data.size);
-    data.music = Mix_LoadMUSType_RW(sdl_music, vfs::file_has_extension(filename, "mp3") ? MUS_MP3 : MUS_WAV, SDL_TRUE);
+    SDL_IOStream* sdl_music = SDL_IOFromMem(vita_music_data.buffer, vita_music_data.size);
+    data.music = Mix_LoadMUSType_RW(sdl_music, vfs::file_has_extension(filename, "mp3") ? MUS_MP3 : MUS_WAV, true);
 #else
     _music_player->music = Mix_LoadMUS(filename);
 #endif
@@ -484,7 +484,7 @@ void sound_manager_t::free_custom_audio_stream() {
 #ifdef USE_SDL_AUDIOSTREAM
     if (_music_player->use_audiostream) {
         if (_music_player->stream) {
-            SDL_FreeAudioStream(_music_player->stream);
+            SDL_DestroyAudioStream(_music_player->stream);
             _music_player->stream = nullptr;
         }
         return;
@@ -502,7 +502,7 @@ bool sound_manager_t::create_custom_audio_stream(uint16_t src_format, uint8_t sr
 
 #ifdef USE_SDL_AUDIOSTREAM
     if (_music_player->use_audiostream) {
-        _music_player->stream = SDL_NewAudioStream(src_format, src_channels, src_rate, dst_format, dst_channels, dst_rate);
+        _music_player->stream = SDL_CreateAudioStream(src_format, src_channels, src_rate, dst_format, dst_channels, dst_rate);
         return !!_music_player->stream;
     }
 #endif
@@ -540,7 +540,7 @@ bool sound_manager_t::put_custom_audio_stream(uint8_t* audio_data, int len) {
 
 #ifdef USE_SDL_AUDIOSTREAM
     if (_music_player->use_audiostream) {
-        return SDL_AudioStreamPut(_music_player->stream, audio_data, len) == 0;
+        return SDL_PutAudioStreamData(_music_player->stream, audio_data, len) == 0;
     }
 #endif
 
@@ -580,7 +580,7 @@ int sound_manager_t::get_custom_audio_stream(Uint8* dst, int len) {
 
 #ifdef USE_SDL_AUDIOSTREAM
     if (_music_player->use_audiostream) {
-        return SDL_AudioStreamGet(_music_player->stream, dst, len);
+        return SDL_GetAudioStreamData(_music_player->stream, dst, len);
     }
 #endif
 
@@ -620,9 +620,9 @@ void sound_manager_t::custom_music_callback(void* dummy, Uint8* stream, int len)
 void sound_manager_t::use_custom_music_player(int bitdepth, int num_channels, int rate, void* audio_data, int len) {
     SDL_AudioFormat format;
     if (bitdepth == 8)
-        format = AUDIO_U8;
+        format = SDL_AUDIO_U8;
     else if (bitdepth == 16)
-        format = AUDIO_S16;
+        format = SDL_AUDIO_S16LE;
     else {
         logs::error("Custom music bitdepth not supported: %u", bitdepth);
         return;
@@ -651,8 +651,8 @@ void sound_manager_t::write_custom_music_data(void* audio_data, int len) {
     Uint8* mix_buffer = (Uint8*)malloc(len);
     if (!mix_buffer)
         return;
-    memset(mix_buffer, (_music_player->format == AUDIO_U8) ? 128 : 0, len);
-    SDL_MixAudioFormat(mix_buffer, (uint8_t*)audio_data, _music_player->format, len, percentage_to_volume(g_settings.get_sound(SOUND_EFFECTS)->volume));
+    memset(mix_buffer, (_music_player->format == SDL_AUDIO_U8) ? 128 : 0, len);
+    SDL_MixAudio(mix_buffer, (uint8_t*)audio_data, _music_player->format, len, percentage_to_volume(g_settings.get_sound(SOUND_EFFECTS)->volume));
 
     put_custom_audio_stream(mix_buffer, len);
     free(mix_buffer);

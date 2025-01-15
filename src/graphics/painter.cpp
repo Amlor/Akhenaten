@@ -79,9 +79,9 @@ void painter::draw_impl(SDL_Texture *texture, vec2i pos, vec2i offset, vec2i siz
     }
 
     if (!!(flags & ImgFlag_Mirrored)) {
-        SDL_RenderCopyExF(this->renderer, texture, &texture_coords, &screen_coords, angle, nullptr, SDL_FLIP_HORIZONTAL);
+        SDL_RenderTextureRotated(this->renderer, texture, &texture_coords, &screen_coords, angle, nullptr, SDL_FLIP_HORIZONTAL);
     } else {
-        SDL_RenderCopyExF(this->renderer, texture, &texture_coords, &screen_coords, angle, nullptr, SDL_FLIP_NONE);
+        SDL_RenderTextureRotated(this->renderer, texture, &texture_coords, &screen_coords, angle, nullptr, SDL_FLIP_NONE);
     }
 }
 
@@ -138,7 +138,7 @@ SDL_Texture* painter::convertToGrayscale(SDL_Texture *tx, vec2i offset, vec2i si
     SDL_RenderClear(this->renderer);
 
     SDL_Rect srcrect{ offset.x, offset.y, size.x, size.y };
-    st = SDL_RenderCopy(this->renderer, tx, &srcrect, NULL);
+    st = SDL_RenderTexture(this->renderer, tx, &srcrect, NULL);
     if (st != 0) {
         return nullptr;
     }
@@ -147,7 +147,7 @@ SDL_Texture* painter::convertToGrayscale(SDL_Texture *tx, vec2i offset, vec2i si
     std::vector<uint32_t> pixels(size.x * size.y);
     st = SDL_RenderReadPixels(this->renderer, NULL, format, pixels.data(), size.x * SDL_BYTESPERPIXEL(format));
 
-    const SDL_PixelFormat *pxformat = SDL_AllocFormat(format);
+    const SDL_PixelFormat *pxformat = SDL_GetPixelFormatDetails(format);
     for (int y = 0; y < size.y; ++y) {
         for (int x = 0; x < size.x; ++x) {
             Uint32 *pixel = pixels.data() + y * size.x + x;
@@ -168,7 +168,7 @@ SDL_Texture* painter::convertToGrayscale(SDL_Texture *tx, vec2i offset, vec2i si
     SDL_Texture *gray_tx_ptr = SDL_CreateTextureFromSurface(this->renderer, surface);
 
     gray_tx.first->second = gray_tx_ptr;
-    SDL_FreeSurface(surface);
+    SDL_DestroySurface(surface);
 
     SDL_SetRenderTarget(this->renderer, old_target);
 

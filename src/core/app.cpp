@@ -12,7 +12,7 @@ void app_window_resize(const vec2i& wsize) {
     s_width = wsize.x;
     s_height = wsize.y;
     SDL_Event event;
-    event.user.type = SDL_USEREVENT;
+    event.user.type = SDL_EVENT_USER;
     event.user.code = USER_EVENT_RESIZE;
     event.user.data1 = &s_width;
     event.user.data2 = &s_height;
@@ -28,7 +28,7 @@ void app_fullscreen(bool fullscreen) {
 
 void app_post_event(int code) {
     SDL_Event event;
-    event.user.type = SDL_USEREVENT;
+    event.user.type = SDL_EVENT_USER;
     event.user.code = code;
     SDL_PushEvent(&event);
 }

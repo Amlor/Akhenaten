@@ -13,7 +13,7 @@
 static FILE* open_pref_file(const char* filename, const char* mode) {
     static_assert(SDL_VERSION_ATLEAST(2, 0, 1), "SDL version too old");
 #if defined(GAME_PLATFORM_ANDROID)
-    bstring512 dir_path = SDL_AndroidGetExternalStoragePath();
+    bstring512 dir_path = SDL_GetAndroidExternalStoragePath();
 #else
     char* tmp_path = SDL_GetBasePath();
     bstring512 dir_path(tmp_path);

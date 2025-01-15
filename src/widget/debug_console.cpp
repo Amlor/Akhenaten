@@ -253,7 +253,7 @@ void game_imgui_overlay_draw() {
 bool game_imgui_overlay_handle_event(void *e) {
     const SDL_Event *event = (const SDL_Event *)e;
 
-    if (event->type == SDL_KEYDOWN) {
+    if (event->type == SDL_EVENT_KEY_DOWN) {
         int key = event->key.keysym.scancode;
 
         if (key == SDL_SCANCODE_GRAVE) {
@@ -261,7 +261,7 @@ bool game_imgui_overlay_handle_event(void *e) {
         }
     }
 
-    if (event->type == SDL_TEXTINPUT && *event->text.text == '`') {
+    if (event->type == SDL_EVENT_TEXT_INPUT && *event->text.text == '`') {
         debug_console().skip_event = true;
     }
 

@@ -91,8 +91,8 @@ void initialize() {
     signal(SIGSEGV, sig_handler);
     signal(SIGABRT, sig_handler);
 
-    SDL_LogSetOutputFunction(Logger::write, nullptr);
-    SDL_LogSetAllPriority(get_log_priority());
+    SDL_SetLogOutputFunction(Logger::write, nullptr);
+    SDL_SetLogPriorities(get_log_priority());
 }
 
 void switch_output(pcstr folder) {

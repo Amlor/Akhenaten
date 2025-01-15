@@ -4,12 +4,12 @@
 
 int jni_init_function_handler(const char *class_name, jni_function_handler *handler)
 {
-    handler->env = (JNIEnv *)SDL_AndroidGetJNIEnv();
+    handler->env = (JNIEnv *)SDL_GetAndroidJNIEnv();
     if (handler->env == NULL) {
         SDL_Log("Problem setting up JNI environment");
         return 0;
     }
-    handler->activity = (jobject) SDL_AndroidGetActivity();
+    handler->activity = (jobject) SDL_GetAndroidActivity();
     if (handler->activity == NULL) {
         SDL_Log("Problem loading the activity.");
         return 0;

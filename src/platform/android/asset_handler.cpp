@@ -134,7 +134,7 @@ int asset_handler_get_directory_contents(const char *dir_name, int type, const c
 extern "C" JNIEXPORT void JNICALL Java_com_github_dalerank_akhenaten_AkhenatenMainActivity_releaseAssetManager(JNIEnv *env, jobject thiz)
 {
     if (asset_manager) {
-        JNIEnv *env = (JNIEnv *)SDL_AndroidGetJNIEnv();
+        JNIEnv *env = (JNIEnv *)SDL_GetAndroidJNIEnv();
         env->DeleteGlobalRef(java_asset_manager);
         asset_manager = 0;
     }

@@ -8,7 +8,7 @@
 #include "input/keys.h"
 
 static int is_alt_down(SDL_KeyboardEvent* event) {
-    return (event->keysym.mod & KMOD_ALT) != 0;
+    return (event->keysym.mod & SDL_KMOD_ALT) != 0;
 }
 
 static int platform_get_key_from_scancode(SDL_Scancode scancode) {
@@ -389,16 +389,16 @@ static SDL_Scancode get_scancode_from_key(int key) {
 
 static int get_modifier(int mod) {
     int key_mod = KEY_MOD_NONE;
-    if (mod & KMOD_SHIFT)
+    if (mod & SDL_KMOD_SHIFT)
         key_mod |= KEY_MOD_SHIFT;
 
-    if (mod & KMOD_CTRL)
+    if (mod & SDL_KMOD_CTRL)
         key_mod |= KEY_MOD_CTRL;
 
-    if (mod & KMOD_ALT)
+    if (mod & SDL_KMOD_ALT)
         key_mod |= KEY_MOD_ALT;
 
-    if (mod & KMOD_GUI)
+    if (mod & SDL_KMOD_GUI)
         key_mod |= KEY_MOD_GUI;
 
     return (int)key_mod;
@@ -410,7 +410,7 @@ void platform_handle_key_down(SDL_KeyboardEvent* event) {
     case SDLK_RETURN:
     case SDLK_KP_ENTER:
         // only send enter if no modifier is also down
-        if ((event->keysym.mod & (KMOD_CTRL | KMOD_ALT | KMOD_GUI)) == 0)
+        if ((event->keysym.mod & (SDL_KMOD_CTRL | SDL_KMOD_ALT | SDL_KMOD_GUI)) == 0)
             keyboard_return();
 
         break;
@@ -468,16 +468,16 @@ void platform_handle_key_down(SDL_KeyboardEvent* event) {
     // handle cheats: special case since they ARE layout dependent
     if (!event->repeat && is_alt_down(event)) {
         switch (event->keysym.sym) {
-        case SDLK_k:
+        case SDLK_K:
             game_cheat_activate();
             break;
-        case SDLK_c:
+        case SDLK_C:
             game_cheat_money();
             break;
-        case SDLK_b:
+        case SDLK_B:
             game_cheat_breakpoint();
             break;
-        case SDLK_x:
+        case SDLK_X:
             game_cheat_console();
         }
     }

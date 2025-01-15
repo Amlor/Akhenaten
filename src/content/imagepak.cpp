@@ -23,7 +23,7 @@
 #include <cinttypes>
 #include <cstring>
 
-SDL_Surface *IMG_LoadPNG_RW(SDL_RWops *src);
+SDL_Surface *IMG_LoadPNG_RW(SDL_IOStream *src);
 image_packer packer;
 
 static color to_32_bit(uint16_t c) {
@@ -468,7 +468,7 @@ bool imagepak::load_folder_pak(pcstr folder) {
 
         SDL_Surface *surface = nullptr;
         if (file) {
-            SDL_RWops *rw = SDL_RWFromConstMem((void *)file->data(), file->size());
+            SDL_IOStream *rw = SDL_IOFromConstMem((void *)file->data(), file->size());
             surface = IMG_LoadPNG_RW(rw);
         }
 
@@ -596,7 +596,7 @@ bool imagepak::load_folder_pak(pcstr folder) {
     // remove pointers to raw data buffer in the images
     for (int i = 0; i < images_array.size(); ++i) {
         image_t &img = images_array.at(i);
-        SDL_FreeSurface((SDL_Surface *)img.temp_pixel_data);
+        SDL_DestroySurface((SDL_Surface *)img.temp_pixel_data);
         img.temp_pixel_data = nullptr;
     }
 

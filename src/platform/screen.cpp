@@ -107,7 +107,7 @@ static void set_window_icon() {
     //     SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Unable to create surface for icon. Reason: %s", SDL_GetError());
     // }
     // SDL_SetWindowIcon(SDL.window, surface);
-    // SDL_FreeSurface(surface);
+    // SDL_DestroySurface(surface);
 }
 #endif
 
@@ -149,7 +149,7 @@ int platform_screen_create(pcstr title, pcstr renderer, bool fullscreen, int dis
     Uint32 flags = SDL_WINDOW_RESIZABLE;
 
 #if SDL_VERSION_ATLEAST(2, 0, 1)
-    flags |= SDL_WINDOW_ALLOW_HIGHDPI;
+    flags |= SDL_WINDOW_HIGH_PIXEL_DENSITY;
 #endif
 
     if (fullscreen) {
@@ -182,7 +182,7 @@ int platform_screen_create(pcstr title, pcstr renderer, bool fullscreen, int dis
 
 #if !defined(__APPLE__)
     if (fullscreen && SDL_GetNumVideoDisplays() > 1) {
-        SDL_SetWindowGrab(g_screen.window, SDL_TRUE);
+        SDL_SetWindowGrab(g_screen.window, true);
     }
 #endif // !__APPLE__
     set_scale_percentage(display_scale_percentage, wsize.x, wsize.y);
@@ -243,7 +243,7 @@ void platform_screen_move(int x, int y) {
 
 void platform_screen_set_fullscreen(void) {
     SDL_GetWindowPosition(g_screen.window, &g_screen.pos.x, &g_screen.pos.y);
-    int display = SDL_GetWindowDisplayIndex(g_screen.window);
+    int display = SDL_GetDisplayForWindow(g_screen.window);
     SDL_DisplayMode mode;
     SDL_GetDesktopDisplayMode(display, &mode);
     logs::info("User to fullscreen %d x %d on display %d", mode.w, mode.h, display);
@@ -251,11 +251,11 @@ void platform_screen_set_fullscreen(void) {
         logs::info("Unable to enter fullscreen: %s", SDL_GetError());
         return;
     }
-    SDL_SetWindowDisplayMode(g_screen.window, &mode);
+    SDL_SetWindowFullscreenMode(g_screen.window, &mode);
 
 #if !defined(__APPLE__)
     if (SDL_GetNumVideoDisplays() > 1) {
-        SDL_SetWindowGrab(g_screen.window, SDL_TRUE);
+        SDL_SetWindowGrab(g_screen.window, true);
     }
 #endif
     g_settings.set_fullscreen(1);
@@ -269,15 +269,15 @@ void platform_screen_set_windowed() {
     auto wsize = g_settings.display_size;
     int pixel_width = scale_logical_to_pixels(wsize.x);
     int pixel_height = scale_logical_to_pixels(wsize.y);
-    int display = SDL_GetWindowDisplayIndex(g_screen.window);
+    int display = SDL_GetDisplayForWindow(g_screen.window);
     logs::info("User to windowed %d x %d on display %d", pixel_width, pixel_height, display);
     SDL_SetWindowFullscreen(g_screen.window, 0);
     SDL_SetWindowSize(g_screen.window, pixel_width, pixel_height);
     if (g_screen.centered) {
         platform_screen_center_window();
     }
-    if (SDL_GetWindowGrab(g_screen.window) == SDL_TRUE) {
-        SDL_SetWindowGrab(g_screen.window, SDL_FALSE);
+    if (SDL_GetWindowGrab(g_screen.window) == true) {
+        SDL_SetWindowGrab(g_screen.window, false);
     }
     g_settings.set_fullscreen(false);
     g_settings.display_size = {pixel_width, pixel_height};
@@ -289,7 +289,7 @@ void platform_screen_set_window_size(int logical_width, int logical_height) {
     }
     int pixel_width = scale_logical_to_pixels(logical_width);
     int pixel_height = scale_logical_to_pixels(logical_height);
-    int display = SDL_GetWindowDisplayIndex(g_screen.window);
+    int display = SDL_GetDisplayForWindow(g_screen.window);
     if (g_settings.is_fullscreen()) {
         SDL_SetWindowFullscreen(g_screen.window, 0);
     } else {
@@ -303,15 +303,15 @@ void platform_screen_set_window_size(int logical_width, int logical_height) {
         platform_screen_center_window();
     }
     logs::info("User resize to %d x %d on display %d", pixel_width, pixel_height, display);
-    if (SDL_GetWindowGrab(g_screen.window) == SDL_TRUE) {
-        SDL_SetWindowGrab(g_screen.window, SDL_FALSE);
+    if (SDL_GetWindowGrab(g_screen.window) == true) {
+        SDL_SetWindowGrab(g_screen.window, false);
     }
     g_settings.set_fullscreen(0);
     g_settings.display_size = {pixel_width, pixel_height};
 }
 
 void platform_screen_center_window() {
-    int display = SDL_GetWindowDisplayIndex(g_screen.window);
+    int display = SDL_GetDisplayForWindow(g_screen.window);
     SDL_SetWindowPosition(g_screen.window, SDL_WINDOWPOS_CENTERED_DISPLAY(display), SDL_WINDOWPOS_CENTERED_DISPLAY(display));
     g_screen.centered = 1;
 }
@@ -323,7 +323,7 @@ void platform_screen_recreate_texture() {
     // texture every frame to bypass that issue.
     if (g_settings.is_fullscreen() && platform_renderer_lost_render_texture()) {
         SDL_DisplayMode mode;
-        SDL_GetWindowDisplayMode(g_screen.window, &mode);
+        SDL_GetWindowFullscreenMode(g_screen.window, &mode);
         screen_set_resolution(scale_pixels_to_logical(mode.w), scale_pixels_to_logical(mode.h));
         platform_renderer_create_render_texture(screen_width(), screen_height());
     }
@@ -350,7 +350,7 @@ int system_is_fullscreen_only(void) {
 
 void system_get_max_resolution(int* width, int* height) {
     SDL_DisplayMode mode;
-    int index = SDL_GetWindowDisplayIndex(g_screen.window);
+    int index = SDL_GetDisplayForWindow(g_screen.window);
     SDL_GetCurrentDisplayMode(index, &mode);
     *width = scale_pixels_to_logical(mode.w);
     *height = scale_pixels_to_logical(mode.h);
@@ -365,10 +365,10 @@ void system_get_max_resolution(int* width, int* height) {
 //                                       &city_texture_position.offset.w, &city_texture_position.offset.h);
 //         SDL_UpdateTexture(SDL.texture_city, &city_texture_position.offset, graphics_canvas(CANVAS_CITY),
 //                           screen_width() * 4 * 2);
-//         SDL_RenderCopy(SDL.renderer, SDL.texture_city, &city_texture_position.offset,
+//         SDL_RenderTexture(SDL.renderer, SDL.texture_city, &city_texture_position.offset,
 //         &city_texture_position.renderer);
 //     }
 //     SDL_UpdateTexture(SDL.texture_ui, NULL, graphics_canvas(CANVAS_UI), screen_width() * 4);
-//     SDL_RenderCopy(SDL.renderer, SDL.texture_ui, NULL, NULL);
+//     SDL_RenderTexture(SDL.renderer, SDL.texture_ui, NULL, NULL);
 //     SDL_RenderPresent(SDL.renderer);
 // }
