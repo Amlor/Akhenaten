@@ -21,22 +21,23 @@ bstring256 fullpath_saves(const char* filename);
 void fullpath_maps(char* full, const char* filename);
 
 namespace GamestateIO {
-const int get_campaign_scenario_offset(int scenario_id);
-const int read_file_version(const char* filename, int offset);
+    int get_campaign_scenario_offset(int scenario_id);
 
-bool write_mission(const int scenario_id);
-bool write_savegame(const char* filename_short);
+    int read_file_version(const char *filename, int offset);
 
-bool write_map(const char* filename_short);
+    bool write_mission(int scenario_id);
+    bool write_savegame(const char* filename_short);
 
-bool load_mission(const int scenario_id, bool start_immediately);
-bool load_savegame(pcstr filename_short, bool start_immediately = true);
-bool load_map(pcstr filename_short, bool start_immediately = true);
+    bool write_map(const char* filename_short);
 
-void start_loaded_file();
+    bool load_mission(int scenario_id, bool start_immediately);
+    bool load_savegame(pcstr filename_short, bool start_immediately = true);
+    bool load_map(pcstr filename_short, bool start_immediately = true);
 
-bool delete_mission(const int scenario_id);
-bool delete_savegame(const char* filename_short);
-bool delete_map(const char* filename_short);
+    void start_loaded_file();
+
+    bool delete_mission(int scenario_id);
+    bool delete_savegame(const char* filename_short);
+    bool delete_map(const char* filename_short);
 
 } // namespace GamestateIO

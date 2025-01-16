@@ -48,7 +48,6 @@
 #include "grid/floodplain.h"
 #include "grid/water.h"
 #include "game/game.h"
-#include "content/vfs.h"
 #include "scenario/criteria.h"
 #include "scenario/demand_change.h"
 #include "scenario/distant_battle.h"
@@ -66,7 +65,6 @@
 #include "window/mission_briefing.h"
 #include "empire/empire.h"
 
-#include "building/count.h"
 #include "chunks.h"
 #include "city/coverage.h"
 #include "city/city_floods.h"
@@ -85,14 +83,14 @@
 #include <sys/stat.h>
 #endif
 
-static const char MISSION_PACK_FILE[] = "mission1.pak";
+static constexpr char MISSION_PACK_FILE[] = "mission1.pak";
 
 bstring256 fullpath_saves(const char* filename) {
     if (strncasecmp(filename, "Save/", 5) == 0 || strncasecmp(filename, "Save\\", 5) == 0) {
-        return bstring256(filename);
+        return {filename};
     }
 
-    return bstring256(vfs::SAVE_FOLDER, "/", (const char*)g_settings.player_name, "/", filename);
+    return {vfs::SAVE_FOLDER, "/", static_cast<const char *>(g_settings.player_name), "/", filename};
 }
 
 void fullpath_maps(char* full, const char* filename) {
@@ -105,15 +103,17 @@ void fullpath_maps(char* full, const char* filename) {
     strcat(full, filename);
 }
 
-static buffer* small_buffer = new buffer(4);
-const int GamestateIO::get_campaign_scenario_offset(int scenario_id) {
+static auto small_buffer = new buffer(4);
+
+int GamestateIO::get_campaign_scenario_offset(int scenario_id) {
     // init 4-byte buffer and read from file header corresponding to scenario index (i.e. mission 20 = offset 20*4 = 80)
     small_buffer->clear();
     if (!io_read_file_part_into_buffer(MISSION_PACK_FILE, NOT_LOCALIZED, small_buffer, 4, 4 * scenario_id))
         return 0;
     return small_buffer->read_i32();
 }
-const int GamestateIO::read_file_version(const char* filename, int offset) {
+
+int GamestateIO::read_file_version(const char *filename, const int offset) {
     small_buffer->clear();
     if (!io_read_file_part_into_buffer(filename, NOT_LOCALIZED, small_buffer, 4, offset + 4))
         return -1;
@@ -215,7 +215,6 @@ static void post_load() {
     switch (game.session.last_loaded) {
     default:
         assert(false);
-        break;
 
     case e_session_mission:
         g_city.init_campaign_mission();
@@ -244,7 +243,6 @@ static void file_schema(e_file_format file_format, const int file_version) {
     switch (file_format) {
     default:
         assert(false);
-        break;
 
     case FILE_FORMAT_MAP_FILE:
         FILEIO.push_chunk(4, false, "scenario_mission_index", iob_scenario_mission_id);
@@ -601,7 +599,7 @@ bool GamestateIO::load_mission(const int scenario_id, bool start_immediately) {
 
     // read file
     pre_load();
-    if (!FILEIO.unserialize(MISSION_PACK_FILE, offset, FILE_FORMAT_MISSION_PAK, GamestateIO::read_file_version, file_schema)) {
+    if (!FILEIO.unserialize(MISSION_PACK_FILE, offset, FILE_FORMAT_MISSION_PAK, read_file_version, file_schema)) {
         return false;
     }
 
@@ -631,7 +629,7 @@ bool GamestateIO::load_savegame(pcstr filename_short, bool start_immediately) {
     // read file
     pre_load();
     e_file_format file_format = get_format_from_file(filename_short);
-    if (!FILEIO.unserialize(full, 0, file_format, GamestateIO::read_file_version, file_schema)) {
+    if (!FILEIO.unserialize(full, 0, file_format, read_file_version, file_schema)) {
         return false;
     }
 
@@ -649,12 +647,12 @@ bool GamestateIO::load_savegame(pcstr filename_short, bool start_immediately) {
 
 bool GamestateIO::load_map(pcstr filename_short, bool start_immediately) {
     // concatenate string
-    char full[MAX_FILE_NAME] = {0};
+    char full[MAX_FILE_NAME] = {};
     fullpath_maps(full, filename_short);
 
     // read file
     pre_load();
-    if (!FILEIO.unserialize(full, 0, FILE_FORMAT_MAP_FILE, GamestateIO::read_file_version, file_schema)) {
+    if (!FILEIO.unserialize(full, 0, FILE_FORMAT_MAP_FILE, read_file_version, file_schema)) {
         return false;
     }
 

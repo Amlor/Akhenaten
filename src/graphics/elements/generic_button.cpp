@@ -26,7 +26,7 @@ static int get_button_min(const mouse* m, vec2i pos, const generic_button* butto
     return 0;
 }
 
-int generic_buttons_handle_mouse(const mouse* m, vec2i pos, const generic_button* buttons, int num_buttons, int* focus_button_id) {
+int generic_buttons_handle_mouse(const mouse* m, vec2i pos, const generic_button* buttons, size_t num_buttons, int* focus_button_id) {
     int button_id = get_button(m, pos, buttons, num_buttons);
     if (focus_button_id) {
         *focus_button_id = button_id;

@@ -41,8 +41,8 @@ struct generic_button {
     generic_button &tooltip(const std::initializer_list<int> &t);
 };
 
-int generic_buttons_handle_mouse(const mouse* m, vec2i pos, const generic_button* buttons, int num_buttons, int* focus_button_id);
-int generic_buttons_min_handle_mouse(const mouse* m, vec2i pos, const generic_button* buttons, int num_buttons, int* focus_button_id, int minimum_button);
+int generic_buttons_handle_mouse(const mouse* m, vec2i pos, const generic_button* buttons, size_t num_buttons, int* focus_button_id);
+int generic_buttons_min_handle_mouse(const mouse* m, vec2i pos, const generic_button* buttons, size_t num_buttons, int* focus_button_id, int minimum_button);
 
 template<uint32_t N>
 inline int generic_buttons_handle_mouse(const mouse *m, vec2i pos, const generic_button (&buttons)[N], int &focus_button_id) {

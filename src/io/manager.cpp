@@ -238,7 +238,7 @@ bool FileIOManager::serialize(const char* filename, int offset, e_file_format fo
 }
 
 bool FileIOManager::unserialize(const char* filename, int offset, e_file_format format,
-                                const int (*determine_file_version)(const char* fnm, int ofst), 
+                                int (*determine_file_version)(const char* fnm, int ofst),
                                 void (*init_schema)(e_file_format _format, const int _version)) {
     // first, clear up the manager data and set the new file info
     clear();

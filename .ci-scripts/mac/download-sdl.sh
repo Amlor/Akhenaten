@@ -16,7 +16,7 @@ install_dmg () {
   curl "$1/$2" --output "$DMG_DOWNLOAD_PATH"
   VOLUME=$(hdiutil attach "$DMG_DOWNLOAD_PATH" | grep -o '/Volumes/.*')
   printf "\nInstalling framework from %s to %s\n" "$VOLUME" "$FRAMEWORKS_PATH"
-  FRAMEWORK_NAME=$(find $VOLUME -maxdepth 1 -type d -iname "*.framework" -exec basename {} \;)
+  FRAMEWORK_NAME=$(find "$VOLUME" -maxdepth 1 -type d -iname "*.framework" -exec basename {} \;)
   cp -rp "$VOLUME/$FRAMEWORK_NAME" "$FRAMEWORKS_PATH"
   if [ -d "$VOLUME"/optional ]
   then

@@ -1,11 +1,9 @@
 #include "orientation.h"
 
 #include "building.h"
-#include "building/rotation.h"
 #include "building/monuments.h"
 #include "building/construction/build_planner.h"
 #include "building/monument_mastaba.h"
-#include "building/building_statue.h"
 #include "core/direction.h"
 #include "core/log.h"
 #include "figuretype/wall.h"
@@ -23,7 +21,6 @@
 #include "grid/terrain.h"
 #include "grid/tiles.h"
 #include "grid/water.h"
-#include "image.h"
 #include <scenario/map.h>
 
 static void determine_leftmost_tile() {
@@ -294,12 +291,13 @@ bool map_orientation_for_venue(int x, int y, e_venue_mode_orientation mode, int*
     for (int orientation_check = 0; orientation_check < 8; orientation_check++) {
         if (num_correct_road_tiles[orientation_check] == (mode + 2) * (mode + 2)) { // check if the num of correct tiles is ALL of them (n x n)
             if (mode == 0) {
-                std::pair<int, int> offset = {0, 0};
+                std::pair<int,int> offset;
                 switch (orientation_check) {
-                case 0: offset = {grid_offset + GRID_OFFSET(1, 2), grid_offset + GRID_OFFSET(2, 1)}; break;
-                case 2: offset = {grid_offset + GRID_OFFSET(-1, 1), grid_offset + GRID_OFFSET(0, 2)}; break;
-                case 4: offset = {grid_offset + GRID_OFFSET(0, -1), grid_offset + GRID_OFFSET(-1, 0)}; break;
-                case 6: offset = {grid_offset + GRID_OFFSET(1, -1), grid_offset + GRID_OFFSET(2, 0)}; break;
+                    case 0: offset = {grid_offset + GRID_OFFSET(1, 2), grid_offset + GRID_OFFSET(2, 1)}; break;
+                    case 2: offset = {grid_offset + GRID_OFFSET(-1, 1), grid_offset + GRID_OFFSET(0, 2)}; break;
+                    case 4: offset = {grid_offset + GRID_OFFSET(0, -1), grid_offset + GRID_OFFSET(-1, 0)}; break;
+                    case 6: offset = {grid_offset + GRID_OFFSET(1, -1), grid_offset + GRID_OFFSET(2, 0)}; break;
+                    default: offset = {0, 0};
                 }
 
                 if (map_terrain_is(offset.first, TERRAIN_ROAD) || map_terrain_is(offset.second, TERRAIN_ROAD)) {
