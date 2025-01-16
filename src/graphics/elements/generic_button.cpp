@@ -1,12 +1,11 @@
 #include "generic_button.h"
 
 #include "input/mouse.h"
-#include "graphics/graphics.h"
 #include "io/gamefiles/lang.h"
 
 #include "graphics/elements/ui.h"
 
-static int get_button(const mouse* m, vec2i pos, const generic_button* buttons, int num_buttons) {
+static int get_button(const mouse* m, const vec2i pos, const generic_button* buttons, const size_t num_buttons) {
     for (int i = 0; i < num_buttons; i++) {
         if (pos.x + buttons[i].x <= m->x && pos.x + buttons[i].x + buttons[i].width > m->x && pos.y + buttons[i].y <= m->y
             && pos.y + buttons[i].y + buttons[i].height > m->y) {
@@ -16,7 +15,7 @@ static int get_button(const mouse* m, vec2i pos, const generic_button* buttons, 
     return 0;
 }
 
-static int get_button_min(const mouse* m, vec2i pos, const generic_button* buttons, int num_buttons, int minimum_button) {
+static int get_button_min(const mouse* m, const vec2i pos, const generic_button* buttons, const size_t num_buttons, const int minimum_button) {
     for (int i = minimum_button; i < num_buttons; i++) {
         if (pos.x + buttons[i].x <= m->x && pos.x + buttons[i].x + buttons[i].width > m->x && pos.y + buttons[i].y <= m->y
             && pos.y + buttons[i].y + buttons[i].height > m->y) {
@@ -26,7 +25,7 @@ static int get_button_min(const mouse* m, vec2i pos, const generic_button* butto
     return 0;
 }
 
-int generic_buttons_handle_mouse(const mouse* m, vec2i pos, const generic_button* buttons, size_t num_buttons, int* focus_button_id) {
+int generic_buttons_handle_mouse(const mouse* m, const vec2i pos, const generic_button* buttons, const size_t num_buttons, int* focus_button_id) {
     int button_id = get_button(m, pos, buttons, num_buttons);
     if (focus_button_id) {
         *focus_button_id = button_id;
@@ -37,8 +36,7 @@ int generic_buttons_handle_mouse(const mouse* m, vec2i pos, const generic_button
     }
 
     const generic_button &button = buttons[button_id - 1];
-    const rect clip_rect = button.clip;
-    if (clip_rect.valid() && !clip_rect.inside(*m)) {
+    if (const rect clip_rect = button.clip; clip_rect.valid() && !clip_rect.inside(*m)) {
         return 0;
     }
 
@@ -62,8 +60,8 @@ int generic_buttons_handle_mouse(const mouse* m, vec2i pos, const generic_button
     return button_id;
 }
 
-int generic_buttons_min_handle_mouse(const mouse* m, vec2i pos, const generic_button* buttons, int num_buttons, int* focus_button_id, int minimum_button) {
-    int button_id = get_button_min(m, pos, buttons, num_buttons, minimum_button);
+int generic_buttons_min_handle_mouse(const mouse* m, const vec2i pos, const generic_button* buttons, const size_t num_buttons, int* focus_button_id, int minimum_button) {
+    const int button_id = get_button_min(m, pos, buttons, num_buttons, minimum_button);
     if (focus_button_id)
         *focus_button_id = button_id;
 
@@ -82,8 +80,8 @@ int generic_buttons_min_handle_mouse(const mouse* m, vec2i pos, const generic_bu
     return button_id;
 }
 
-generic_button &generic_button::tooltip(textid t) { 
-    return tooltip((pcstr)lang_get_string(t));
+generic_button &generic_button::tooltip(const textid t) {
+    return tooltip(reinterpret_cast<pcstr>(lang_get_string(t)));
 }
 
 generic_button &generic_button::tooltip(const xstring &t) { 
@@ -95,6 +93,6 @@ generic_button &generic_button::tooltip(const xstring &t) {
 }
 
 generic_button &generic_button::tooltip(const std::initializer_list<int> &t) {
-    pcstr new_value = (pcstr)lang_get_string(*t.begin(), *(t.begin() + 1));
+    const auto new_value = reinterpret_cast<pcstr>(lang_get_string(*t.begin(), *(t.begin() + 1)));
     return tooltip(new_value);
 }

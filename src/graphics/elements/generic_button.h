@@ -5,7 +5,6 @@
 #include "graphics/text.h"
 #include "graphics/elements/button.h"
 
-#include <vector>
 #include <cstdint>
 #include <functional>
 
